@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tropp KO Verktøy</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- === 1: HEADER START === -->
+    <header>
+        <h1>Tropp KO Verktøy</h1>
+        <nav>
+            <button data-tab="map" class="tab-button active">Kart</button>
+            <button data-tab="units" class="tab-button">Enheter</button>
+            <button data-tab="roster" class="tab-button">Roster</button>
+            <button data-tab="ops" class="tab-button">Operasjonsbilde</button>
+            <button data-tab="log" class="tab-button">Logg</button>
+            <button data-tab="settings" class="tab-button">Innstillinger</button>
+        </nav>
+    </header>
+    <!-- === 1: HEADER END === -->
+
+    <!-- === 2: MAIN CONTENT AREA START === -->
+    <main id="app-content">
+
+        <!-- === 2.1: MAP TAB CONTENT START === -->
+        <section id="map-tab" class="tab-content active">
+            <h2>Kart</h2>
+            <p>Her laster du opp og administrerer kart.</p>
+            <!-- Innhold for kart-fanen kommer her -->
+             <div>
+                <label for="map-upload">Last opp kartbilde:</label>
+                <input type="file" id="map-upload" accept="image/*">
+            </div>
+            <div id="map-display-area">
+                <!-- Kartbildet og plotting vil vises her -->
+                <canvas id="map-canvas"></canvas>
+            </div>
+            <div>
+                <button id="add-point-mode">Legg til punkt</button>
+                <button id="add-checkpoint-mode">Legg til sjekkpunkt</button>
+                <!-- Flere kontroller for kartet -->
+            </div>
+             <div id="map-point-list">
+                 <h3>Plottede punkter:</h3>
+                 <ul></ul>
+             </div>
+        </section>
+        <!-- === 2.1: MAP TAB CONTENT END === -->
+
+        <!-- === 2.2: UNITS TAB CONTENT START === -->
+        <section id="units-tab" class="tab-content">
+            <h2>Enheter (Poster & Patruljer)</h2>
+            <p>Definer faste poster og patruljer.</p>
+            <!-- Innhold for enheter-fanen kommer her -->
+            <button id="add-unit-button">Legg til ny enhet</button>
+            <div id="unit-list">
+                <!-- Liste over definerte enheter vises her -->
+            </div>
+        </section>
+        <!-- === 2.2: UNITS TAB CONTENT END === -->
+
+        <!-- === 2.3: ROSTER TAB CONTENT START === -->
+        <section id="roster-tab" class="tab-content">
+            <h2>Personell Roster</h2>
+            <p>Administrer mannskaper og deres status.</p>
+            <!-- Innhold for roster-fanen kommer her -->
+            <button id="add-squad-button">Legg til lag</button>
+            <button id="add-personnel-button">Legg til personell</button>
+            <div id="roster-display">
+                <!-- Roster-tabeller vises her -->
+            </div>
+        </section>
+        <!-- === 2.3: ROSTER TAB CONTENT END === -->
+
+        <!-- === 2.4: OPERATIONS VIEW TAB CONTENT START === -->
+        <section id="ops-tab" class="tab-content">
+            <h2>Operasjonsbilde</h2>
+            <p>Visuell oversikt over kart, enheter og bevegelser.</p>
+            <!-- Innhold for operasjonsbilde-fanen kommer her -->
+             <div id="ops-map-display-area">
+                 <canvas id="ops-map-canvas"></canvas>
+             </div>
+             <div id="ops-unit-status">
+                 <h3>Enhetsstatus:</h3>
+                 <!-- Status for patruljer/poster vises her -->
+             </div>
+        </section>
+        <!-- === 2.4: OPERATIONS VIEW TAB CONTENT END === -->
+
+        <!-- === 2.5: LOG TAB CONTENT START === -->
+        <section id="log-tab" class="tab-content">
+            <h2>Logg</h2>
+            <p>Hendelseslogg.</p>
+            <!-- Innhold for logg-fanen kommer her -->
+            <div>
+                <label for="manual-log-entry">Ny loggføring:</label>
+                <input type="text" id="manual-log-entry" placeholder="Skriv inn hendelse...">
+                <button id="add-log-button">Legg til i logg</button>
+            </div>
+            <div id="log-display">
+                <ul id="log-list">
+                    <!-- Loggføringer vises her -->
+                </ul>
+            </div>
+        </section>
+        <!-- === 2.5: LOG TAB CONTENT END === -->
+
+        <!-- === 2.6: SETTINGS TAB CONTENT START === -->
+        <section id="settings-tab" class="tab-content">
+            <h2>Innstillinger</h2>
+            <p>Applikasjonsinnstillinger og datahåndtering.</p>
+            <!-- Innhold for innstillinger-fanen kommer her -->
+            <div>
+                <button id="export-data-button">Eksporter data til fil</button>
+            </div>
+            <div>
+                <label for="import-data-input">Importer data fra fil:</label>
+                <input type="file" id="import-data-input" accept=".json">
+            </div>
+            <div>
+                <button id="clear-data-button" style="color: red;">Slett all lokal data</button>
+            </div>
+        </section>
+        <!-- === 2.6: SETTINGS TAB CONTENT END === -->
+
+    </main>
+    <!-- === 2: MAIN CONTENT AREA END === -->
+
+    <!-- === 3: SCRIPTS START === -->
+    <!-- Vi legger til JavaScript-filer her -->
+    <!-- Først storage.js for å sikre at database-APIet er klart -->
+    <!-- <script src="storage.js"></script> -->
+    <!-- Deretter de andre modulene -->
+    <!-- <script src="roster.js"></script> -->
+    <!-- <script src="map.js"></script> -->
+    <!-- <script src="units.js"></script> -->
+    <!-- <script src="ops.js"></script> -->
+    <!-- <script src="log.js"></script> -->
+    <!-- Til slutt hoved-scriptet app.js -->
+    <script src="app.js"></script>
+    <!-- === 3: SCRIPTS END === -->
+
+</body>
+</html>

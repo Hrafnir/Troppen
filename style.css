@@ -66,27 +66,29 @@ main#app-content {
     margin-top: 100px; /* Samme som headerens høyde */
     height: calc(100vh - 100px); /* Fyll resten av skjermen */
     overflow-y: auto; /* Scrollbar for HELE innholdet i main hvis det blir for høyt */
-    /* Fjernet flex-grow, da height er satt */
 }
 /* === 3: MAIN CONTENT AREA END === */
 
 /* === 4: TAB CONTENT STYLING START === */
 .tab-content {
-    display: none;
+    display: none; /* Skjul alle faner som standard */
     padding: 1rem;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-top: 1rem;
     animation: fadeIn 0.5s;
-     /* La fanen vokse etter behov */
-     min-height: 100%; /* Prøv å fylle main-området */
-     display: flex; /* Bruk flex for å bedre kontrollere interne elementer */
-     flex-direction: column;
+    /* min-height og flex settes KUN på .active nedenfor */
 }
 
 .tab-content.active {
-    display: flex; /* Endret fra block til flex for å aktivere flex-egenskaper */
+    display: flex; /* BRUK flex for å aktivere flex-egenskaper for aktive faner */
+    flex-direction: column; /* Standard kolonne-layout for innholdet i en fane */
+    /* Sørg for at den aktive fanen kan fylle tilgjengelig høyde */
+     min-height: calc(100% - 2rem); /* Tar høyde for padding i main og margin-top på tab-content */
+     /* Eller bare la den vokse naturlig innenfor main's scroll */
+     /* Fjerner min-height for enklere layout, main styrer scrolling */
+
 }
 
 @keyframes fadeIn {
@@ -204,6 +206,12 @@ button#clear-data-button:hover {
 /* === 7: ROSTER SPECIFIC STYLES END === */
 
 /* === 8: LOG SPECIFIC STYLES START === */
+#log-display { /* Styling på container for logg */
+     display: flex;
+     flex-direction: column;
+     /* Kan potensielt vokse hvis nødvendig */
+}
+
 #log-list {
     list-style: none;
     padding: 0;
@@ -227,6 +235,10 @@ button#clear-data-button:hover {
 /* === 8: LOG SPECIFIC STYLES END === */
 
 /* === 9: UNIT LIST STYLES START === */
+#unit-list { /* Container for enheter */
+    /* Kan vokse hvis nødvendig */
+}
+
 #unit-list .unit-item {
     border: 1px solid #eee;
     padding: 10px;
@@ -247,9 +259,16 @@ button#clear-data-button:hover {
 /* === 9: UNIT LIST STYLES END === */
 
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) START === */
+#map-tab { /* Gjelder spesifikt for kart-fanen */
+     /* display: flex; flex-direction: column; arves fra .tab-content.active */
+}
+
+
 #map-tab > div:not(#map-display-area), /* Gjelder kontroller/liste, ikke kartet */
+#map-tab > h2,
+#map-tab > p,
 #map-tab > h3 {
-    flex-shrink: 0; /* Forhindre at knapper/liste krymper */
+    flex-shrink: 0; /* Forhindre at knapper/tekst/liste krymper */
 }
 
 #map-display-area {
@@ -260,19 +279,17 @@ button#clear-data-button:hover {
     overflow: auto; /* Scroll INNE i kartområdet hvis kartet er større */
     border: 1px solid #ccc;
     margin-bottom: 1rem;
-    /* --- NY NØKKELENDRING --- */
     flex-grow: 1; /* La denne div-en ta opp all tilgjengelig vertikal plass i map-tab */
-    min-height: 500px; /* Sett en raus minimumshøyde */
-    height: auto; /* La den vokse med innhold, men flex-grow dominerer */
+    min-height: 500px; /* Raus minimumshøyde */
+    /* height: auto; Fjernet denne, flex-grow styrer */
 }
 
 #map-canvas {
     background-color: #ffffff;
-     max-width: 100%; /* Canvas kan ikke være bredere enn container */
-     max-height: 100%; /* Canvas kan ikke være høyere enn container */
-     /* width og height settes av JS basert på bilde */
+     max-width: 100%;
+     max-height: 100%;
      display: block;
-     object-fit: contain; /* Sikrer at bildet vises innenfor canvas bounds */
+     object-fit: contain;
 }
 
 /* Styling for aktive modusknapper */
@@ -286,12 +303,14 @@ button#clear-data-button:hover {
      flex-shrink: 0; /* Ikke la punktlisten krympe */
      max-height: 150px; /* Begrens høyden på punktlisten */
      overflow-y: auto; /* Scrollbar for punktlisten hvis den blir lang */
+     border: 1px solid #eee; /* Ramme rundt listen */
+     padding: 0.5rem; /* Litt padding inne i listen */
 }
 
 #map-point-list ul {
      list-style: none;
      padding-left: 0;
-     margin-top: 0.5rem;
+     margin-top: 0; /* Fjernet margin */
 }
 
 #map-point-list li {

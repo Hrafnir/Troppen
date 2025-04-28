@@ -62,35 +62,16 @@
 
         <!-- === 2.3: ROSTER TAB CONTENT START === -->
         <section id="roster-tab" class="tab-content">
-            <h2>Personell Roster</h2>
-            <p>Administrer mannskaper og deres status.</p>
-             <!-- Skjema for å legge til lag -->
-             <div id="add-squad-form" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc;">
-                 <h4>Legg til nytt lag</h4>
-                 <label for="new-squad-name">Lagnavn:</label>
-                 <input type="text" id="new-squad-name" placeholder="F.eks. Lag 5">
-                 <button id="add-squad-button">Legg til lag</button>
-             </div>
-             <!-- Skjema for å legge til personell -->
-            <div id="add-personnel-form" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc;">
-                <h4>Legg til nytt personell</h4>
-                <label for="new-personnel-name">Navn:</label>
-                <input type="text" id="new-personnel-name" placeholder="Etternavn, Fornavn">
-                <label for="new-personnel-rank">Grad:</label>
-                <input type="text" id="new-personnel-rank" placeholder="F.eks. Visekorp">
-                <label for="new-personnel-role">Stilling:</label>
-                <input type="text" id="new-personnel-role" placeholder="F.eks. Geværmann 1">
-                <label for="new-personnel-squad">Tilhører lag:</label>
-                <select id="new-personnel-squad">
-                    <option value="">Velg lag...</option>
-                    <!-- Lag-alternativer lastes inn dynamisk her -->
-                </select>
-                <button id="add-personnel-button">Legg til personell</button>
+            <div class="roster-controls" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
+                <h2>Personell Roster</h2>
+                <button id="save-roster-changes-button" disabled>Lagre Roster Endringer</button>
+                <button id="add-new-squad-button">Legg til nytt lag</button>
+                 <span id="roster-status-message" style="margin-left: 10px; font-style: italic;"></span>
             </div>
 
             <div id="roster-display">
-                <!-- Roster-tabeller vises her -->
                 <p>Laster roster...</p>
+                <!-- Roster-tabeller for hvert lag vises her -->
             </div>
         </section>
         <!-- === 2.3: ROSTER TAB CONTENT END === -->
@@ -139,6 +120,10 @@
                 <input type="file" id="import-data-input" accept=".json">
                 <button id="import-data-button" style="display: none;">Importer valgt fil</button>
             </div>
+             <div>
+                 <button id="create-default-roster-button" style="margin-top: 10px;">Gjenopprett standard roster</button>
+                 <span style="font-size: 0.9em;"> (Oppretter Troppsstab og Lag 1-4 hvis de ikke finnes)</span>
+             </div>
             <div style="margin-top: 20px;">
                 <button id="clear-data-button" style="color: red; background-color: #fdd;">Slett all lokal data</button>
                 <span id="clear-data-confirmation" style="margin-left: 10px; color: red; display: none;">Er du sikker? <button id="confirm-clear-data">Ja, slett alt</button> <button id="cancel-clear-data">Avbryt</button></span>
@@ -150,15 +135,7 @@
     <!-- === 2: MAIN CONTENT AREA END === -->
 
     <!-- === 3: SCRIPTS START === -->
-    <!-- Først storage.js for å sikre at database-APIet er klart -->
     <script src="storage.js"></script>
-    <!-- Deretter de andre modulene (vi lager disse senere) -->
-    <!-- <script src="roster.js"></script> -->
-    <!-- <script src="map.js"></script> -->
-    <!-- <script src="units.js"></script> -->
-    <!-- <script src="ops.js"></script> -->
-    <!-- <script src="log.js"></script> -->
-    <!-- Til slutt hoved-scriptet app.js -->
     <script src="app.js"></script>
     <!-- === 3: SCRIPTS END === -->
 

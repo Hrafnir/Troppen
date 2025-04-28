@@ -223,3 +223,43 @@ button#clear-data-button:hover {
     margin-bottom: 5px;
 }
 /* === 9: UNIT LIST STYLES END === */
+
+/* === 10: MAP SPECIFIC STYLES (ADDITIONS) START === */
+#map-display-area {
+    background-color: #e0e0e0; /* Litt mørkere grå bakgrunn */
+    min-height: 200px; /* Sørger for at området vises selv uten kart */
+    display: flex; /* Bruk flex for å sentrere innhold (canvas) */
+    justify-content: center; /* Sentrer horisontalt */
+    align-items: center; /* Sentrer vertikalt */
+    overflow: auto; /* Viktig for scrolling av store kart */
+    max-height: 70vh; /* Begrens høyden for å unngå at den tar hele skjermen */
+}
+
+#map-canvas {
+    background-color: #ffffff; /* Hvit bakgrunn for selve canvas hvis bildet er mindre */
+    /* Max-width/height settes av JS, men kan ha en generell max her også */
+     max-width: 100%;
+     /* max-height settes av JS basert på bilde */
+     display: block; /* Standard for canvas */
+     border: 1px solid #aaa; /* Tynn ramme rundt canvas */
+}
+
+/* Styling for aktive modusknapper */
+#map-tab button.active-mode {
+    background-color: #28a745; /* Grønn farge for aktiv modus */
+    font-weight: bold;
+    border: 2px solid #1e7e34;
+}
+
+#map-point-list li button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 1em;
+}
+#map-point-list li button:hover {
+    color: darkred;
+}
+/* === 10: MAP SPECIFIC STYLES (ADDITIONS) END === */

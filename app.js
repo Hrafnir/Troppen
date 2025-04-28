@@ -55,13 +55,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         await initDB();
         console.log("Database initialisert vellykket.");
 
-        initializeTabs();
-        initializeEventListeners();
+        // Initialiser UI-moduler FØR event listeners settes opp
+        initializeMapModule(); // <--- Nytt kall for kart
+
+        initializeTabs(); // Setter opp fanebytte-logikk (inkl. ulagret sjekk)
+        initializeEventListeners(); // Setter opp generelle listeners
 
         // Sjekk om default roster skal opprettes
         await checkAndCreateDefaultRoster();
 
-        // Last inn data for initielt aktiv fane (kart) og deretter roster/logg i bakgrunnen
+        // Last inn data for initielt aktiv fane og deretter roster/logg i bakgrunnen
         await loadInitialData();
 
         console.log("Applikasjon klar.");
@@ -70,21 +73,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Kritisk feil under initialisering:", error);
         const mainContent = document.getElementById('app-content');
         if (mainContent) {
-            mainContent.innerHTML = `<p style="color: red; font-weight: bold;">Kunne ikke initialisere applikasjonen. Databasefeil: ${error}</p>`;
+            mainContent.innerHTML = `<p style="color: red; font-weight: bold;">Kunne ikke initialisere applikasjonen. Feil: ${error}</p>`;
         }
     }
 });
 
 async function loadInitialData() {
-    // Last data for den fanen som er aktiv først (vanligvis Kart)
     const activeTabButton = document.querySelector('.tab-button.active');
+    let activeTabId = 'map'; // Default til kart hvis ingen er aktiv enda
     if (activeTabButton) {
-        const activeTabId = activeTabButton.getAttribute('data-tab');
-        await loadDataForTab(activeTabId); // Last data for aktiv fane
+        activeTabId = activeTabButton.getAttribute('data-tab');
     }
-    // Last Roster og Logg data i bakgrunnen uansett, slik at de er klare
-    await loadRosterData();
-    await loadLogData();
+    // Last data for aktiv fane først (kan trigge map load hvis den er aktiv)
+    await loadDataForTab(activeTabId);
+
+    // Last Roster og Logg data uansett (i bakgrunnen)
+    // Unngå å laste på nytt hvis de var den aktive fanen
+    if (activeTabId !== 'roster') await loadRosterData();
+    if (activeTabId !== 'log') await loadLogData();
 }
 
 // Funksjon for å laste data basert på fane-ID
@@ -102,8 +108,12 @@ async function loadDataForTab(tabId) {
                 await loadUnitsData();
                 break;
             case 'map':
-                // await loadMapData();
-                console.log("loadMapData() ikke implementert enda.");
+                // Kall funksjonen i map.js for å laste kartet hvis modulen er klar
+                if (typeof loadMapDataFromStorage === 'function') {
+                     await loadMapDataFromStorage();
+                 } else {
+                     console.warn("loadMapDataFromStorage() er ikke tilgjengelig enda.");
+                 }
                 break;
             case 'ops':
                 // await loadOpsViewData();
@@ -119,7 +129,7 @@ async function loadDataForTab(tabId) {
 // === 1: INITIALIZATION & DOM READY END ===
 
 // === 2: TAB SWITCHING LOGIC START ===
-let pendingTabSwitch = null; // For å holde på fanebyttet mens vi venter på brukerrespons
+let pendingTabSwitch = null;
 
 function initializeTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -131,36 +141,32 @@ function initializeTabs() {
             const currentActiveButton = document.querySelector('.tab-button.active');
             const currentActiveTabId = currentActiveButton ? currentActiveButton.getAttribute('data-tab') : null;
 
-            // Ikke gjør noe hvis vi klikker på den allerede aktive fanen
-            if (button.classList.contains('active')) {
-                return;
-            }
+            if (button.classList.contains('active')) return; // Ikke gjør noe ved klikk på aktiv fane
 
-            // Sjekk for ulagrede endringer FØR vi bytter fane, kun hvis vi NAVIGERER FRA roster
+            // Sjekk for ulagrede roster-endringer FØR bytte
             if (currentActiveTabId === 'roster' && rosterHasUnsavedChanges) {
-                pendingTabSwitch = targetTabId; // Lagre målet for fanebyttet
+                pendingTabSwitch = targetTabId;
                 showUnsavedChangesDialog();
-                return; // Avbryt fanebyttet foreløpig
+                return; // Avbryt byttet foreløpig
             }
 
-            // Hvis ingen ulagrede endringer (eller vi ikke navigerer fra roster), bytt fane direkte
-             switchToTab(targetTabId);
+            // Bytt fane direkte hvis ingen ulagrede endringer
+            await switchToTab(targetTabId);
         });
     });
 
-     // Aktiver standardfanen (Kart) programmert
+     // Aktiver standardfanen (Kart) og last data
      const defaultTabButton = document.querySelector('.tab-button[data-tab="map"]');
      const defaultTabContent = document.getElementById('map-tab');
      if (defaultTabButton && defaultTabContent) {
-         defaultTabButton.classList.add('active');
-         defaultTabContent.classList.add('active');
-         console.log("Aktiverte standardfane: map");
-         loadDataForTab('map'); // Last data for default fane
+         // Ikke legg til 'active' her, det gjøres i switchToTab for konsistens
+         switchToTab('map'); // Bytt til kart-fanen og last data
      } else {
+         // Fallback hvis standardfane ikke finnes
          const firstTabButton = document.querySelector('.tab-button');
          if (firstTabButton) {
              const firstTabId = firstTabButton.getAttribute('data-tab');
-             switchToTab(firstTabId); // Bruk switchToTab for å laste data
+             switchToTab(firstTabId);
          }
      }
 }
@@ -176,6 +182,15 @@ async function switchToTab(targetTabId) {
         return;
     }
 
+    // Håndter modus-reset når man navigerer vekk fra Kart-fanen
+    const currentActiveButton = document.querySelector('.tab-button.active');
+    if (currentActiveButton && currentActiveButton.getAttribute('data-tab') === 'map') {
+         if (typeof setInteractionMode === 'function') {
+            setInteractionMode('view'); // Gå ut av add-modus
+         }
+    }
+
+
     // Fjern 'active' fra alle
     tabButtons.forEach(btn => btn.classList.remove('active'));
     tabContents.forEach(content => content.classList.remove('active'));
@@ -188,40 +203,32 @@ async function switchToTab(targetTabId) {
     // Last inn data for den nye aktive fanen
     await loadDataForTab(targetTabId);
 
-    // Nullstill pendingTabSwitch hvis vi kom hit
-    pendingTabSwitch = null;
-     // Nullstill også ulagrede endringer flagget hvis vi navigerte vekk fra roster uten å lagre/forkaste via dialog
-     // (Dette skjer hvis flagget var falskt, eller hvis vi ignorerte dialogen - bør egentlig ikke skje)
-     // if (targetTabId !== 'roster') {
-     //     resetRosterUnsavedChanges(); // Gjør dette når vi FORLATER roster i save/discard funksjonene
-     // }
+    pendingTabSwitch = null; // Nullstill eventuelt ventende bytte
 }
 
 function showUnsavedChangesDialog() {
-    // Enkel confirm dialog foreløpig. Kan byttes ut med en custom modal senere.
     const confirmation = confirm("Du har ulagrede endringer i rosteren.\n\n" +
                                  "Trykk OK for å lagre endringene og bytte fane.\n" +
                                  "Trykk Avbryt for å forkaste endringene og bytte fane.");
 
-    if (confirmation) { // Bruker trykket OK -> Lagre
+    if (confirmation) { // Lagre
         console.log("Bruker valgte å lagre endringer før fanebytte.");
-        handleSaveRosterChanges(true); // true indikerer at vi skal bytte fane etter lagring
-    } else { // Bruker trykket Avbryt -> Forkast
+        handleSaveRosterChanges(true); // true = bytt fane etter lagring
+    } else { // Forkast
         console.log("Bruker valgte å forkaste endringer før fanebytte.");
         discardRosterChangesAndSwitchTab();
     }
 }
 
 async function discardRosterChangesAndSwitchTab() {
-    resetRosterUnsavedChanges(); // Nullstill flagget
+    resetRosterUnsavedChanges();
     if (pendingTabSwitch) {
         // Last roster data på nytt for å fjerne de forkastede endringene fra UI
         await loadRosterData();
         // Bytt til den ventende fanen
-        switchToTab(pendingTabSwitch);
+        await switchToTab(pendingTabSwitch); // Bruk await her også
     }
 }
-
 // === 2: TAB SWITCHING LOGIC END ===
 
 // === 3: UTILITY FUNCTIONS START ===

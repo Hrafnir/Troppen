@@ -8,11 +8,11 @@
 body {
     font-family: sans-serif;
     line-height: 1.6;
-    padding: 0; /* Fjernet padding her, legger det på header/main */
+    padding: 0;
     background-color: #f4f4f4;
     display: flex;
     flex-direction: column;
-    height: 100vh; /* Fyll hele høyden */
+    height: 100vh;
     overflow: hidden; /* Forhindre scrolling på body */
 }
 /* === 1: BASIC RESET & BODY STYLING END === */
@@ -22,12 +22,12 @@ header {
     background-color: #333;
     color: #fff;
     padding: 1rem;
-    position: fixed; /* Fester header øverst */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
-    height: 100px; /* Definert høyde for bruk i calc() nedenfor */
+    height: 100px; /* Definert høyde for bruk i calc() */
 }
 
 header h1 {
@@ -38,7 +38,7 @@ header h1 {
 nav {
     display: flex;
     justify-content: center;
-    gap: 10px; /* Mellomrom mellom knapper */
+    gap: 10px;
 }
 
 .tab-button {
@@ -56,7 +56,7 @@ nav {
 }
 
 .tab-button.active {
-    background-color: #007bff; /* Blå farge for aktiv fane */
+    background-color: #007bff;
 }
 /* === 2: HEADER & NAVIGATION END === */
 
@@ -64,26 +64,29 @@ nav {
 main#app-content {
     padding: 1rem;
     margin-top: 100px; /* Samme som headerens høyde */
-    /* Beregn høyden eksplisitt for å fylle resten av skjermen */
-    height: calc(100vh - 100px); /* Total viewport høyde minus header-høyden */
-    overflow-y: auto; /* Tillat vertikal scrolling KUN for innholdet i main */
-    flex-grow: 1; /* Teknisk sett ikke nødvendig når height er satt, men skader ikke */
+    height: calc(100vh - 100px); /* Fyll resten av skjermen */
+    overflow-y: auto; /* Scrollbar for HELE innholdet i main hvis det blir for høyt */
+    /* Fjernet flex-grow, da height er satt */
 }
 /* === 3: MAIN CONTENT AREA END === */
 
 /* === 4: TAB CONTENT STYLING START === */
 .tab-content {
-    display: none; /* Skjul alle faner som standard */
+    display: none;
     padding: 1rem;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-top: 1rem;
-    animation: fadeIn 0.5s; /* Enkel fade-in animasjon */
+    animation: fadeIn 0.5s;
+     /* La fanen vokse etter behov */
+     min-height: 100%; /* Prøv å fylle main-området */
+     display: flex; /* Bruk flex for å bedre kontrollere interne elementer */
+     flex-direction: column;
 }
 
 .tab-content.active {
-    display: block; /* Vis aktiv fane */
+    display: flex; /* Endret fra block til flex for å aktivere flex-egenskaper */
 }
 
 @keyframes fadeIn {
@@ -94,11 +97,7 @@ main#app-content {
 
 
 /* === 5: MAP CANVAS STYLING (TIDLIGERE) START === */
-/* Flyttet relevant innhold til seksjon 10 */
-/* #map-display-area, #ops-map-display-area { ... } */
-/* #map-canvas, #ops-map-canvas { ... } */
-/* #map-point-list ul { ... } */
-/* #map-point-list li { ... } */
+/* Innhold flyttet til seksjon 10 */
 /* === 5: MAP CANVAS STYLING (TIDLIGERE) END === */
 
 /* === 6: FORM ELEMENTS & BUTTONS START === */
@@ -110,18 +109,18 @@ label {
 
 input[type="text"],
 input[type="file"],
-select, /* Lagt til select her */
+select,
 button {
     padding: 0.5rem;
     margin-bottom: 0.75rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: inherit; /* Sørg for lik fontstørrelse */
+    font-size: inherit;
 }
 
 input[type="file"] {
-    border: none; /* Filinput trenger ofte spesifikk styling */
-    padding-left: 0; /* Justering for filinput */
+    border: none;
+    padding-left: 0;
 }
 
 button {
@@ -129,7 +128,8 @@ button {
     color: white;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    margin-right: 5px; /* Litt luft mellom knapper */
+    margin-right: 5px;
+     flex-shrink: 0; /* Forhindre at knapper krymper i flex-kontekst */
 }
 
 button:hover {
@@ -142,7 +142,7 @@ button:disabled {
 }
 
 button#clear-data-button {
-    background-color: #dc3545; /* Rød farge for sletteknapp */
+    background-color: #dc3545;
 }
 
 button#clear-data-button:hover {
@@ -159,80 +159,66 @@ button#clear-data-button:hover {
     width: 100%;
     border-collapse: collapse;
     margin-top: 0.5rem;
-    margin-bottom: 0.5rem; /* Litt luft før "+ Legg til" knappen */
+    margin-bottom: 0.5rem;
 }
 
 #roster-display th,
 #roster-display td {
     border: 1px solid #ddd;
-    padding: 4px 6px; /* Litt mindre padding for å få plass */
+    padding: 4px 6px;
     text-align: left;
-    vertical-align: middle; /* Sentrer innhold vertikalt */
+    vertical-align: middle;
 }
 
 #roster-display th {
     background-color: #f2f2f2;
     font-weight: bold;
-    font-size: 0.9em; /* Litt mindre font på header */
+    font-size: 0.9em;
 }
 
 #roster-display td {
-    font-size: 0.95em; /* Litt mindre font i celler */
+    font-size: 0.95em;
 }
 
-/* Input/Select inne i tabellen */
 #roster-display .roster-input,
 #roster-display .roster-select {
-    width: 100%; /* Fyll cellen */
-    padding: 3px 4px; /* Mindre padding internt */
-    margin-bottom: 0; /* Fjern standard bunnmarg */
-    font-size: inherit; /* Arv fontstørrelse fra td */
-    border-radius: 2px; /* Mindre avrunding */
+    width: 100%;
+    padding: 3px 4px;
+    margin-bottom: 0;
+    font-size: inherit;
+    border-radius: 2px;
 }
 #roster-display .custom-role-input {
-    width: calc(100% - 8px); /* Litt smalere for å passe bedre */
+    width: calc(100% - 8px);
 }
 
-/* Knapper inne i tabellen */
 #roster-display td button {
     padding: 2px 5px;
     font-size: 0.9em;
     margin-right: 0;
 }
 
-/* Styling for endrede/nye rader */
 #roster-display tr.changed {
-    background-color: #fffacd; /* Lys gul for ulagrede endringer */
+    background-color: #fffacd;
 }
-#roster-display tr.new-row {
-    /* Kan legge til ekstra styling for nye rader om ønskelig */
-    /* border-left: 3px solid #28a745; */
-}
-
-
-/* Status-farger (eksempel - ikke brukt direkte nå) */
-/* .status-hvile { background-color: lightblue; } */
-/* .status-beredskap { background-color: lightgoldenrodyellow; } */
-/* .status-vakt { background-color: lightcoral; } */
-/* .status-borte { background-color: lightgray; text-decoration: line-through; } */
-
 /* === 7: ROSTER SPECIFIC STYLES END === */
 
 /* === 8: LOG SPECIFIC STYLES START === */
 #log-list {
     list-style: none;
     padding: 0;
-    max-height: 400px; /* Begrenset høyde med scroll */
+    max-height: 400px; /* Holder denne begrenset */
     overflow-y: auto;
     border: 1px solid #eee;
     margin-top: 1rem;
+     flex-shrink: 0; /* Ikke la logglisten krympe for mye */
 }
 
 #log-list li {
     padding: 8px;
     border-bottom: 1px solid #eee;
-    font-family: monospace; /* Fin for logger */
-    font-size: 0.9em; /* Litt mindre font for logg */
+    font-family: monospace;
+    font-size: 0.9em;
 }
 
 #log-list li:nth-child(odd) {
@@ -261,37 +247,45 @@ button#clear-data-button:hover {
 /* === 9: UNIT LIST STYLES END === */
 
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) START === */
+#map-tab > div:not(#map-display-area), /* Gjelder kontroller/liste, ikke kartet */
+#map-tab > h3 {
+    flex-shrink: 0; /* Forhindre at knapper/liste krymper */
+}
+
 #map-display-area {
-    background-color: #e0e0e0; /* Litt mørkere grå bakgrunn */
-    min-height: 200px; /* Sørger for at området vises selv uten kart */
-    display: flex; /* Bruk flex for å sentrere innhold (canvas) */
-    justify-content: center; /* Sentrer horisontalt */
-    align-items: center; /* Sentrer vertikalt */
-    overflow: auto; /* Viktig for scrolling av store kart */
-    /* Fjernet max-height for å la den vokse mer */
-    border: 1px solid #ccc; /* Ramme rundt displayområdet */
-    margin-bottom: 1rem; /* Litt luft under kartområdet */
-    /* Sørg for at den kan vokse vertikalt innenfor main-containeren */
-     flex-grow: 1; /* Kan hjelpe i flex-kontekst */
-     /* La høyden bestemmes av innholdet (canvas) opp til tilgjengelig plass i main */
-     height: auto; /* Viktig! La den tilpasse seg innholdet. */
-     /* Vi kan evt sette en min-height for å sikre synlighet */
-      min-height: 400px; /* Eller en annen passende minimumshøyde */
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto; /* Scroll INNE i kartområdet hvis kartet er større */
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    /* --- NY NØKKELENDRING --- */
+    flex-grow: 1; /* La denne div-en ta opp all tilgjengelig vertikal plass i map-tab */
+    min-height: 500px; /* Sett en raus minimumshøyde */
+    height: auto; /* La den vokse med innhold, men flex-grow dominerer */
 }
 
 #map-canvas {
-    background-color: #ffffff; /* Hvit bakgrunn for selve canvas hvis bildet er mindre */
-     max-width: 100%;
-     /* height settes av JS basert på bilde */
-     display: block; /* Standard for canvas */
-     /* Flyttet border til #map-display-area */
+    background-color: #ffffff;
+     max-width: 100%; /* Canvas kan ikke være bredere enn container */
+     max-height: 100%; /* Canvas kan ikke være høyere enn container */
+     /* width og height settes av JS basert på bilde */
+     display: block;
+     object-fit: contain; /* Sikrer at bildet vises innenfor canvas bounds */
 }
 
 /* Styling for aktive modusknapper */
 #map-tab button.active-mode {
-    background-color: #28a745; /* Grønn farge for aktiv modus */
+    background-color: #28a745;
     font-weight: bold;
     border: 2px solid #1e7e34;
+}
+
+#map-point-list {
+     flex-shrink: 0; /* Ikke la punktlisten krympe */
+     max-height: 150px; /* Begrens høyden på punktlisten */
+     overflow-y: auto; /* Scrollbar for punktlisten hvis den blir lang */
 }
 
 #map-point-list ul {
@@ -303,8 +297,8 @@ button#clear-data-button:hover {
 #map-point-list li {
      padding: 5px 0;
      border-bottom: 1px dotted #ccc;
-     display: flex; /* Bruk flex for å justere knapp */
-     justify-content: space-between; /* Plasser knapp helt til høyre */
+     display: flex;
+     justify-content: space-between;
      align-items: center;
 }
 
@@ -316,8 +310,8 @@ button#clear-data-button:hover {
     cursor: pointer;
     padding: 0 5px;
     font-size: 1em;
-    flex-shrink: 0; /* Forhindre at knappen krymper */
-    margin-left: 10px; /* Litt avstand til teksten */
+    flex-shrink: 0;
+    margin-left: 10px;
 }
 #map-point-list li button:hover {
     color: darkred;

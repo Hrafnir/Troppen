@@ -232,16 +232,18 @@ button#clear-data-button:hover {
     justify-content: center; /* Sentrer horisontalt */
     align-items: center; /* Sentrer vertikalt */
     overflow: auto; /* Viktig for scrolling av store kart */
-    max-height: 70vh; /* Begrens høyden for å unngå at den tar hele skjermen */
+    /* Fjernet max-height: 70vh; for å la den vokse mer */
+    border: 1px solid #ccc; /* Ramme rundt displayområdet */
+    margin-bottom: 1rem; /* Litt luft under kartområdet */
 }
 
 #map-canvas {
     background-color: #ffffff; /* Hvit bakgrunn for selve canvas hvis bildet er mindre */
-    /* Max-width/height settes av JS, men kan ha en generell max her også */
      max-width: 100%;
-     /* max-height settes av JS basert på bilde */
+     /* height settes av JS basert på bilde */
      display: block; /* Standard for canvas */
-     border: 1px solid #aaa; /* Tynn ramme rundt canvas */
+     /* Flyttet border til #map-display-area */
+     /* border: 1px solid #aaa; */
 }
 
 /* Styling for aktive modusknapper */

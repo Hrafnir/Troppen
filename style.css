@@ -1,0 +1,225 @@
+/* === 1: BASIC RESET & BODY STYLING START === */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    padding: 0; /* Fjernet padding her, legger det på header/main */
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Fyll hele høyden */
+    overflow: hidden; /* Forhindre scrolling på body */
+}
+/* === 1: BASIC RESET & BODY STYLING END === */
+
+/* === 2: HEADER & NAVIGATION START === */
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+    position: fixed; /* Fester header øverst */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header h1 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Mellomrom mellom knapper */
+}
+
+.tab-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #555;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.tab-button:hover {
+    background-color: #777;
+}
+
+.tab-button.active {
+    background-color: #007bff; /* Blå farge for aktiv fane */
+}
+/* === 2: HEADER & NAVIGATION END === */
+
+/* === 3: MAIN CONTENT AREA START === */
+main#app-content {
+    padding: 1rem;
+    margin-top: 100px; /* Justert for å passe header-høyde */
+    flex-grow: 1; /* Tar opp resterende plass */
+    overflow-y: auto; /* Gjør at innholdet kan scrolle, ikke hele siden */
+}
+/* === 3: MAIN CONTENT AREA END === */
+
+/* === 4: TAB CONTENT STYLING START === */
+.tab-content {
+    display: none; /* Skjul alle faner som standard */
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 1rem;
+    animation: fadeIn 0.5s; /* Enkel fade-in animasjon */
+}
+
+.tab-content.active {
+    display: block; /* Vis aktiv fane */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+/* === 4: TAB CONTENT STYLING END === */
+
+
+/* === 5: MAP SPECIFIC STYLES START === */
+#map-display-area, #ops-map-display-area {
+    margin-top: 1rem;
+    position: relative; /* Nødvendig for å posisjonere canvas */
+    max-width: 100%;
+    /* background-color: #eee; /* Midlertidig bakgrunn */
+    /* min-height: 400px; /* Minimumshøyde */
+    overflow: auto; /* Scroll hvis kartet er større enn området */
+    border: 1px solid #aaa;
+}
+
+#map-canvas, #ops-map-canvas {
+    display: block; /* Fjerner ekstra bunnmarg */
+    position: absolute; /* Legger seg oppå bildet */
+    top: 0;
+    left: 0;
+    cursor: crosshair; /* Viser et kryss når man holder over */
+    /* Bredde og høyde settes av JavaScript basert på bildet */
+}
+
+#map-point-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#map-point-list li {
+    padding: 5px 0;
+    border-bottom: 1px dotted #ccc;
+}
+/* === 5: MAP SPECIFIC STYLES END === */
+
+/* === 6: FORM ELEMENTS & BUTTONS START === */
+label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="file"],
+button {
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="file"] {
+    border: none; /* Filinput trenger ofte spesifikk styling */
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-right: 5px; /* Litt luft mellom knapper */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button#clear-data-button {
+    background-color: #dc3545; /* Rød farge for sletteknapp */
+}
+
+button#clear-data-button:hover {
+    background-color: #c82333;
+}
+/* === 6: FORM ELEMENTS & BUTTONS END === */
+
+/* === 7: ROSTER SPECIFIC STYLES START === */
+#roster-display table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+#roster-display th,
+#roster-display td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#roster-display th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Status-farger (eksempel) */
+.status-hvile { background-color: lightblue; }
+.status-beredskap { background-color: lightgoldenrodyellow; }
+.status-vakt { background-color: lightcoral; }
+.status-borte { background-color: lightgray; text-decoration: line-through; }
+
+/* === 7: ROSTER SPECIFIC STYLES END === */
+
+/* === 8: LOG SPECIFIC STYLES START === */
+#log-list {
+    list-style: none;
+    padding: 0;
+    max-height: 400px; /* Begrenset høyde med scroll */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    margin-top: 1rem;
+}
+
+#log-list li {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    font-family: monospace; /* Fin for logger */
+}
+
+#log-list li:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+/* === 8: LOG SPECIFIC STYLES END === */
+
+/* === 9: UNIT LIST STYLES START === */
+#unit-list .unit-item {
+    border: 1px solid #eee;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+#unit-list .unit-item h4 {
+    margin-bottom: 5px;
+}
+/* === 9: UNIT LIST STYLES END === */

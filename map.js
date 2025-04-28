@@ -78,30 +78,42 @@ function handleMapUpload(event) {
     const file = event.target.files[0];
     if (!file || !file.type.startsWith('image/')) {
         alert("Vennligst velg en gyldig bildefil.");
+        // Nullstill inputfeltet hvis filen er ugyldig
+         event.target.value = null;
         return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
         const imageDataUrl = e.target.result; // Base64 data URL
-        // Lagre bildet og nullstill punkter (nytt kart = nye punkter)
-        saveMapDataToStorage(imageDataUrl, [], file.name)
+
+        // --- KORRIGERING HER ---
+        // Kall saveCurrentMapData, ikke saveMapDataToStorage
+        saveCurrentMapData(imageDataUrl, [], file.name)
             .then(() => {
                 loadImageOntoCanvas(imageDataUrl); // Vis det nye bildet
                 mapPoints = []; // Nullstill punkter for nytt kart
                 updatePointList();
                 setMapStatus(`Kart "${file.name}" lastet opp.`);
                 logEvent(`Nytt kart "${file.name}" lastet opp.`, 'Kart');
+                 // Nullstill filinput etter vellykket opplasting
+                 event.target.value = null;
+                 setInteractionMode('view'); // Gå til view mode
             })
             .catch(error => {
                 console.error("Kunne ikke lagre det nye kartbildet:", error);
                 setMapStatus("Kunne ikke lagre kart.", true);
+                 // Nullstill filinput ved feil også
+                 event.target.value = null;
             });
+        // --- SLUTT PÅ KORRIGERING ---
     };
     reader.onerror = (e) => {
         console.error("Feil ved lesing av fil:", e);
         alert("Kunne ikke lese bildefilen.");
         setMapStatus("Feil ved lesing av kartfil.", true);
+        // Nullstill filinput ved feil
+         event.target.value = null;
     };
     reader.readAsDataURL(file); // Les filen som Base64
 }
@@ -138,8 +150,9 @@ function drawMap() {
         mapCanvas.width = mapImage.width;
         mapCanvas.height = mapImage.height;
         // Sørg for at containeren justerer seg (CSS håndterer max-width/height/scroll)
-        mapCanvas.style.maxWidth = `${mapImage.width}px`;
-        mapCanvas.style.maxHeight = `${mapImage.height}px`;
+        // Fjernet style-setting herfra, bør håndteres primært av CSS for containeren.
+        // mapCanvas.style.maxWidth = `${mapImage.width}px`;
+        // mapCanvas.style.maxHeight = `${mapImage.height}px`;
 
         // Tegn bakgrunnsbildet
         mapContext.clearRect(0, 0, mapCanvas.width, mapCanvas.height); // Tøm først
@@ -163,8 +176,9 @@ function clearMapDisplay() {
      // Sett en standard størrelse? Eller la den være 0?
      mapCanvas.width = 300; // Default liten størrelse
      mapCanvas.height = 150;
-     mapCanvas.style.maxWidth = '100%';
-     mapCanvas.style.maxHeight = '400px'; // Tilbake til default CSS
+     // Fjernet style-setting herfra også.
+     // mapCanvas.style.maxWidth = '100%';
+     // mapCanvas.style.maxHeight = '400px'; // Tilbake til default CSS
      mapImage = null;
      mapPoints = [];
      updatePointList();

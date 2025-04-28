@@ -62,9 +62,11 @@ nav {
 /* === 3: MAIN CONTENT AREA START === */
 main#app-content {
     padding: 1rem;
-    margin-top: 100px; /* Justert for å passe header-høyde */
-    flex-grow: 1; /* Tar opp resterende plass */
-    overflow-y: auto; /* Gjør at innholdet kan scrolle, ikke hele siden */
+    margin-top: 100px; /* For å unngå å havne bak den faste headeren */
+    /* Beregn høyden eksplisitt for å fylle resten av skjermen */
+    height: calc(100vh - 100px); /* Total viewport høyde minus header-høyden */
+    overflow-y: auto; /* Tillat vertikal scrolling KUN for innholdet i main */
+    flex-grow: 1; /* Selv om vi setter høyde, beholder vi denne for flex-konteksten */
 }
 /* === 3: MAIN CONTENT AREA END === */
 

@@ -1,17 +1,33 @@
 // === 0: ICON LIBRARY & DEFAULTS START ===
 const ICON_LIBRARY = {
+    // Nøkkel: Ikonnavn (brukes i data), Verdi: SVG-streng
+    // Generelle
     'circle': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="currentColor"/></svg>`,
     'square': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="90" height="90" fill="currentColor"/></svg>`,
     'triangle': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 95,95 5,95" fill="currentColor"/></svg>`,
+    'star': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 61.8,38.2 98.2,38.2 68.1,59.5 79.4,92.7 50,71.3 20.6,92.7 31.9,59.5 1.8,38.2 38.2,38.2" fill="currentColor"/></svg>`,
     'target': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="currentColor" stroke-width="8"><circle cx="50" cy="50" r="45"/><circle cx="50" cy="50" r="25"/><path d="M50,5 V95 M5,50 H95"/></g></svg>`,
     'flag': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10,95 V5 H70 L60,15 H70 L60,25 H90 V45 H70 L60,35 H70 L60,45 H10 Z" fill="currentColor" stroke="black" stroke-width="2"/></svg>`,
+    // Enheter
     'person': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="25" r="15" fill="currentColor"/><path d="M50,40 V70 M20,95 H80 M50,70 L25,90 M50,70 L75,90 M25,55 H75" stroke="currentColor" stroke-width="8" fill="none"/></svg>`,
-    'vehicle': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10 70 Q 10 60, 20 60 H 80 Q 90 60, 90 70 V 80 H 10 Z M 20 60 V 40 H 80 V 60 M 30 80 V 90 H 40 V 80 Z M 60 80 V 90 H 70 V 80 Z" fill="currentColor" stroke="black" stroke-width="2"/></svg>`
+    'group': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><circle cx="30" cy="30" r="10"/><path d="M30,40 v20 m-15,25 h30 m-15,-20 l-10,15 m10,-15 l10,15 m-20,-25 h30"/><circle cx="70" cy="30" r="10"/><path d="M70,40 v20 m-15,25 h30 m-15,-20 l-10,15 m10,-15 l10,15 m-20,-25 h30"/></g></svg>`, // Forenklet gruppe
+    'vehicle': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10 70 Q 10 60, 20 60 H 80 Q 90 60, 90 70 V 80 H 10 Z M 20 60 V 40 H 80 V 60 M 30 80 V 90 H 40 V 80 Z M 60 80 V 90 H 70 V 80 Z" fill="currentColor" stroke="black" stroke-width="2"/></svg>`,
+    'building': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="5,95 5,35 50,5 95,35 95,95 65,95 65,60 35,60 35,95 Z" fill="currentColor" stroke="black" stroke-width="2"/><rect x="45" y="70" width="10" height="25" fill="grey"/></svg>`,
+    // Spesifikt for observasjon?
+    'eye': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 50 Q 50 10, 95 50 Q 50 90, 5 50 Z" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="50" cy="50" r="20" fill="currentColor"/></svg>`, // Øye ikon
+    'binoculars': `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(45 50 50)" fill="currentColor"><rect x="15" y="5" width="30" height="60"/><rect x="55" y="5" width="30" height="60"/><rect x="40" y="25" width="20" height="20"/></g></svg>` // Kikkert
 };
 
 const DEFAULT_POINT_ICON = 'circle';
 const DEFAULT_POINT_COLOR = '#0000FF'; // Blå
 const DEFAULT_POINT_SIZE = 16;
+
+// Defaults for Units (kan være annerledes enn for punkter)
+const DEFAULT_UNIT_ICON = 'person';
+const DEFAULT_UNIT_COLOR = '#FF8C00'; // Oransje
+const DEFAULT_UNIT_SIZE = 20;
+const DEFAULT_OBS_ANGLE = 0; // Nord
+const DEFAULT_OBS_FOV = 90; // 90 grader synsfelt
 // === 0: ICON LIBRARY & DEFAULTS END ===
 
 

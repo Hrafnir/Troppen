@@ -290,6 +290,7 @@ button#clear-data-button:hover {
      max-height: 100%;
      display: block;
      object-fit: contain;
+     /* Cursor settes av JS */
 }
 
 /* Styling for aktive modusknapper */
@@ -321,19 +322,55 @@ button#clear-data-button:hover {
      align-items: center;
 }
 
-
+/* Knapper i punktlisten */
 #map-point-list li button {
     background-color: transparent;
     border: none;
-    color: red;
     cursor: pointer;
     padding: 0 5px;
     font-size: 1em;
     flex-shrink: 0;
-    margin-left: 10px;
+    margin-left: 5px; /* Litt mindre margin */
 }
 #map-point-list li button:hover {
+    opacity: 0.7;
+}
+#map-point-list li button[title*="Slett"] { /* Spesifikk farge for sletteknapp */
+     color: red;
+}
+#map-point-list li button[title*="Slett"]:hover {
     color: darkred;
+}
+#map-point-list li button[title*="Rediger"] {
+     color: #007bff; /* Blå for rediger */
+}
+#map-point-list li button[title*="Lås"] {
+     color: #555; /* Grå for lås/lås opp */
+}
+
+/* Styling for låste elementer i listen */
+#map-point-list li.locked-point-item {
+    opacity: 0.7; /* Gjør hele elementet litt dusere */
+}
+#map-point-list li.locked-point-item span:first-of-type { /* Tekst-span */
+     /* font-style: italic; */
+}
+
+.point-list-preview { /* Styling for ikon-preview i listen */
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+.point-list-preview img {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Global cursor for dragging */
+body.dragging-point {
+    cursor: grabbing !important; /* Overstyr andre cursors under flytting */
 }
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) END === */
 

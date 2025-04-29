@@ -359,6 +359,8 @@ button#clear-data-button:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     min-width: 300px; /* Minimumsbredde */
     max-width: 90%; /* Maksbredde */
+    max-height: 90vh; /* Maks høyde for å unngå å dekke hele skjermen */
+    overflow-y: auto; /* Scrollbar for modalen hvis innholdet blir for høyt */
 }
 
 .modal-content h3 {
@@ -392,6 +394,7 @@ button#clear-data-button:hover {
     width: 100px; /* Og bredde */
     border: 1px solid #ccc;
     cursor: pointer;
+    vertical-align: middle; /* Juster vertikalt med label */
 }
 
 .modal-actions {
@@ -411,4 +414,40 @@ button#clear-data-button:hover {
 .modal-actions button.secondary:hover {
     background-color: #5a6268;
 }
+
+/* Preview styling */
+.modal-content .preview-group {
+    margin-bottom: 1.5rem; /* Litt mer luft */
+    text-align: center; /* Sentrer innholdet */
+}
+
+.point-preview-area {
+    display: inline-block; /* Gjør at den tar opp kun nødvendig bredde */
+    min-width: 50px; /* Minimumsbredde for visning */
+    min-height: 50px; /* Minimumshøyde */
+    max-width: 100px; /* Begrens bredden litt */
+    max-height: 100px; /* Begrens høyden litt */
+    padding: 10px;
+    border: 1px dashed #ccc;
+    background-color: #f8f8f8; /* Lys bakgrunn for kontrast */
+    /* Sentrerer selve ikonet hvis det er mindre enn min/max-width/height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Skjul hvis ikonet er større enn området */
+}
+
+.point-preview-area img {
+    /* Sørger for at bildet ikke får ekstra margin/padding */
+    display: block;
+     /* Forhindre blurry bilder ved merkelig skalering */
+     image-rendering: pixelated; /* Kan hjelpe på noen browsere */
+     image-rendering: -moz-crisp-edges; /* Firefox */
+     image-rendering: crisp-edges;
+     /* Sørg for at bildet ikke blir strukket uforholdsmessig */
+     object-fit: contain;
+     max-width: 100%;
+     max-height: 100%;
+}
+
 /* === 11: MODAL STYLING END === */

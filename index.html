@@ -175,14 +175,86 @@
     </div>
     <!-- === 2.7: POINT MODAL END === -->
 
-    <!-- === 3: SCRIPTS START === -->
+        <!-- === 2.8: UNIT MODAL START === -->
+    <div id="unit-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 id="unit-modal-title">Legg til ny enhet</h3>
+
+             <!-- Forhåndsvisning for Enhet -->
+            <div class="form-group preview-group">
+                <label>Forhåndsvisning (Ikon):</label>
+                <div id="unit-preview" class="point-preview-area">
+                    <!-- Ikonet vises her av JS -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="unit-name">Navn:</label>
+                <input type="text" id="unit-name" placeholder="F.eks. Vaktpost Alpha, Patrulje Bravo">
+            </div>
+            <div class="form-group">
+                <label for="unit-type">Type:</label>
+                <select id="unit-type">
+                    <option value="Post">Post (Stasjonær)</option>
+                    <option value="Patrol">Patrulje (Mobil)</option>
+                </select>
+            </div>
+             <div class="form-group">
+                <label for="unit-assignedSquadId">Ansvarlig lag:</label>
+                <select id="unit-assignedSquadId">
+                    <option value="">Laster lag...</option>
+                    <!-- Fylles dynamisk av units.js -->
+                </select>
+            </div>
+             <div class="form-group">
+                <label for="unit-personnelCount">Antall personell:</label>
+                <input type="number" id="unit-personnelCount" min="0" step="1" placeholder="F.eks. 2">
+            </div>
+             <hr>
+             <h4>Visuell stil:</h4>
+            <div class="form-group">
+                <label for="unit-icon">Ikon:</label>
+                <select id="unit-icon">
+                    <!-- Fylles dynamisk av units.js -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="unit-color">Farge:</label>
+                <input type="color" id="unit-color" value="#FF8C00"> <!-- Default oransje -->
+            </div>
+            <div class="form-group">
+                <label for="unit-size">Størrelse (px):</label>
+                <input type="number" id="unit-size" value="20" min="4" max="64" step="2">
+            </div>
+
+            <!-- Felter kun for 'Post' type -->
+             <div id="observation-fields" style="display: none; border-top: 1px dashed #ccc; margin-top: 1rem; padding-top: 1rem;">
+                 <h4>Observasjon (kun for Post):</h4>
+                 <div class="form-group">
+                    <label for="unit-observationAngle">Retning (°):</label>
+                    <input type="number" id="unit-observationAngle" min="0" max="359" step="1" placeholder="0 = Nord, 90 = Øst">
+                </div>
+                 <div class="form-group">
+                    <label for="unit-observationFOV">Synsfelt (° FOV):</label>
+                    <input type="number" id="unit-observationFOV" min="1" max="359" step="1" placeholder="F.eks. 90">
+                </div>
+             </div>
+
+            <div class="modal-actions">
+                <button id="save-unit-button">Lagre enhet</button>
+                <button id="cancel-unit-button" class="secondary">Avbryt</button>
+            </div>
+        </div>
+    </div>
+    <!-- === 2.8: UNIT MODAL END === -->
+
+       <!-- === 3: SCRIPTS START === -->
     <script src="storage.js"></script>
-    <script src="map.js"></script> <!-- Kart-modul -->
-    <!-- Andre moduler kommer her senere -->
-    <!-- <script src="units.js"></script> -->
-    <!-- <script src="ops.js"></script> -->
-    <!-- <script src="log.js"></script> -->
-    <script src="app.js"></script> <!-- Hovedapplikasjon sist -->
+    <script src="map.js"></script>       <!-- Kart-modul -->
+    <script src="units.js"></script>     <!-- Enheter-modul (Ny) -->
+    <!-- <script src="ops.js"></script> -->  <!-- Operasjonsbilde (kommer) -->
+    <!-- <script src="log.js"></script> -->  <!-- Logg (kan lages senere) -->
+    <script src="app.js"></script>       <!-- Hovedapplikasjon sist -->
     <!-- === 3: SCRIPTS END === -->
 
 </body>

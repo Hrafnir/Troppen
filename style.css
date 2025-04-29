@@ -375,116 +375,160 @@ body.dragging-point {
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) END === */
 
 /* === 11: MODAL STYLING START === */
-.modal-overlay {
-    position: fixed; /* Står fast på skjermen */
+/* Apply overlay to both modals */
+#point-modal, #unit-modal {
+    position: fixed; /* Stays in place on screen */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Halvgjennomsiktig bakgrunn */
-    display: flex;
+    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    display: none; /* Hidden by default */
     justify-content: center;
     align-items: center;
-    z-index: 1001; /* Legger seg over header */
-    padding: 1rem; /* Padding rundt innholdet */
+    z-index: 1001; /* Above header */
+    padding: 1rem;
+    /* Add a subtle fade-in */
+    animation: fadeInModalBackground 0.3s ease-out forwards;
 }
+
+/* Keyframes for modal background fade-in */
+@keyframes fadeInModalBackground {
+    from { background-color: rgba(0, 0, 0, 0); }
+    to { background-color: rgba(0, 0, 0, 0.6); }
+}
+
 
 .modal-content {
     background-color: #fff;
-    padding: 2rem;
+    padding: 1.5rem 2rem 2rem 2rem; /* Adjust padding */
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    min-width: 300px; /* Minimumsbredde */
-    max-width: 90%; /* Maksbredde */
-    max-height: 90vh; /* Maks høyde for å unngå å dekke hele skjermen */
-    overflow-y: auto; /* Scrollbar for modalen hvis innholdet blir for høyt */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    min-width: 350px; /* Slightly wider */
+    max-width: 500px; /* Limit max width */
+    max-height: 90vh; /* Limit max height */
+    overflow-y: auto; /* Scrollbar if content exceeds max-height */
+    /* Add a slide-down/scale-up animation */
+    animation: zoomInModalContent 0.3s ease-out forwards;
+    transform: scale(0.95); /* Start slightly smaller */
+    opacity: 0; /* Start transparent */
 }
+
+/* Keyframes for modal content animation */
+@keyframes zoomInModalContent {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
 
 .modal-content h3 {
     margin-top: 0;
     margin-bottom: 1.5rem;
     text-align: center;
+    font-size: 1.4em;
+    color: #333;
 }
 
 .modal-content .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem; /* Slightly more space */
 }
 
 .modal-content label {
     display: block;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem; /* More space below label */
     font-weight: bold;
+    font-size: 0.95em;
+    color: #555;
 }
 
+/* Consistent styling for inputs/selects */
 .modal-content input[type="text"],
 .modal-content select,
 .modal-content input[type="number"] {
-    width: 100%; /* Fyll bredden */
-    padding: 0.5rem;
+    width: 100%;
+    padding: 0.6rem 0.8rem; /* Adjust padding */
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.2s ease;
+}
+.modal-content input[type="text"]:focus,
+.modal-content select:focus,
+.modal-content input[type="number"]:focus {
+    border-color: #007bff; /* Highlight on focus */
+    outline: none;
 }
 
+
 .modal-content input[type="color"] {
-    padding: 0; /* Fargevelger trenger ofte spesiell styling */
-    height: 40px; /* Gi den litt høyde */
-    width: 100px; /* Og bredde */
+    padding: 2px; /* Minimal padding */
+    height: 40px;
+    width: 80px; /* Adjust width */
     border: 1px solid #ccc;
+    border-radius: 4px; /* Consistent rounding */
     cursor: pointer;
-    vertical-align: middle; /* Juster vertikalt med label */
+    vertical-align: middle;
 }
 
 .modal-actions {
-    margin-top: 1.5rem;
+    margin-top: 2rem; /* More space before actions */
     display: flex;
-    justify-content: flex-end; /* Knapper til høyre */
+    justify-content: flex-end;
     gap: 10px;
 }
 
 .modal-actions button {
-    padding: 0.6rem 1.2rem;
+    padding: 0.7rem 1.5rem; /* Slightly larger buttons */
+    font-weight: bold;
+    border-radius: 5px;
 }
 
 .modal-actions button.secondary {
-    background-color: #6c757d; /* Grå for avbryt */
+    background-color: #6c757d;
 }
 .modal-actions button.secondary:hover {
     background-color: #5a6268;
 }
 
-/* Preview styling */
+/* Preview styling (consistent for both modals) */
 .modal-content .preview-group {
-    margin-bottom: 1.5rem; /* Litt mer luft */
-    text-align: center; /* Sentrer innholdet */
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+.modal-content .preview-group label { /* Make preview label consistent */
+     display: block;
+     margin-bottom: 0.6rem; /* Space above preview box */
+     font-weight: bold;
+     font-size: 0.95em;
+     color: #555;
 }
 
-.point-preview-area {
-    display: inline-block; /* Gjør at den tar opp kun nødvendig bredde */
-    min-width: 50px; /* Minimumsbredde for visning */
-    min-height: 50px; /* Minimumshøyde */
-    max-width: 100px; /* Begrens bredden litt */
-    max-height: 100px; /* Begrens høyden litt */
-    padding: 10px;
+.point-preview-area { /* Shared class for both previews */
+    display: inline-block;
+    width: 80px; /* Fixed size for preview box */
+    height: 80px;
+    padding: 5px;
     border: 1px dashed #ccc;
-    background-color: #f8f8f8; /* Lys bakgrunn for kontrast */
-    /* Sentrerer selve ikonet hvis det er mindre enn min/max-width/height */
+    background-color: #f8f8f8;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Skjul hvis ikonet er større enn området */
+    overflow: hidden;
 }
 
 .point-preview-area img {
-    /* Sørger for at bildet ikke får ekstra margin/padding */
     display: block;
-     /* Forhindre blurry bilder ved merkelig skalering */
-     image-rendering: pixelated; /* Kan hjelpe på noen browsere */
-     image-rendering: -moz-crisp-edges; /* Firefox */
-     image-rendering: crisp-edges;
-     /* Sørg for at bildet ikke blir strukket uforholdsmessig */
-     object-fit: contain;
-     max-width: 100%;
-     max-height: 100%;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
 }
-
 /* === 11: MODAL STYLING END === */

@@ -370,13 +370,11 @@ function setInteractionMode(mode) {
     const addPointBtn = document.getElementById('add-point-mode');
     const addCheckpointBtn = document.getElementById('add-checkpoint-mode');
 
-    // Reset stiler
     addPointBtn.classList.remove('active-mode');
     addCheckpointBtn.classList.remove('active-mode');
     mapCanvas.style.cursor = 'default';
 
     if (mode === 'add-point') {
-        // Fremhev begge knappene som nå starter samme modus? Eller bare én? Fremhever begge.
         addPointBtn.classList.add('active-mode');
         addCheckpointBtn.classList.add('active-mode');
         mapCanvas.style.cursor = 'crosshair';
@@ -407,7 +405,7 @@ function setMapStatus(message, isError = false) {
 }
 
 /**
- * Viser modalen for å legge til et nytt punkt.
+ * Viser modalen for å legge til et nytt punkt og setter opp preview.
  * @param {number} x X-koordinat for det nye punktet.
  * @param {number} y Y-koordinat for det nye punktet.
  */
@@ -415,17 +413,72 @@ function showAddPointModal(x, y) {
     if (!pointModalElement) return;
     pendingPointCoords = { x, y }; // Lagre koordinater
 
+    // Hent referanser til modal-inputs
+    const nameInput = document.getElementById('point-name');
+    const iconSelect = document.getElementById('point-icon');
+    const colorInput = document.getElementById('point-color');
+    const sizeInput = document.getElementById('point-size');
+    const sizeLabel = document.getElementById('point-size-label');
+
     // Sett default verdier i modalen
-    document.getElementById('point-name').value = '';
-    document.getElementById('point-icon').value = DEFAULT_POINT_ICON;
-    document.getElementById('point-color').value = DEFAULT_POINT_COLOR;
-    document.getElementById('point-size').value = DEFAULT_POINT_SIZE;
+    nameInput.value = '';
+    iconSelect.value = DEFAULT_POINT_ICON;
+    colorInput.value = DEFAULT_POINT_COLOR;
+    sizeInput.value = DEFAULT_POINT_SIZE;
+    sizeLabel.textContent = `(${DEFAULT_POINT_SIZE}px)`; // Oppdater label
     document.getElementById('point-modal-title').textContent = 'Legg til nytt punkt';
+
+    // Sett opp event listeners for live preview (kun når modalen vises)
+    // Fjern gamle listeners først for sikkerhets skyld
+    iconSelect.removeEventListener('change', updatePointPreview);
+    colorInput.removeEventListener('input', updatePointPreview);
+    sizeInput.removeEventListener('input', updatePointPreview);
+    // Legg til nye
+    iconSelect.addEventListener('change', updatePointPreview);
+    colorInput.addEventListener('input', updatePointPreview);
+    sizeInput.addEventListener('input', updatePointPreview);
+
+
+    // Oppdater preview med default verdier
+    updatePointPreview();
 
     // Vis modalen
     pointModalElement.style.display = 'block';
-    document.getElementById('point-name').focus(); // Sett fokus på navnefeltet
+    nameInput.focus();
 }
+
+/**
+ * Oppdaterer forhåndsvisningen av ikonet i modalen.
+ */
+function updatePointPreview() {
+    const previewArea = document.getElementById('point-preview');
+    const iconSelect = document.getElementById('point-icon');
+    const colorInput = document.getElementById('point-color');
+    const sizeInput = document.getElementById('point-size');
+    const sizeLabel = document.getElementById('point-size-label');
+
+    if (!previewArea || !iconSelect || !colorInput || !sizeInput) return;
+
+    const iconName = iconSelect.value;
+    const color = colorInput.value;
+    const size = parseInt(sizeInput.value, 10) || DEFAULT_POINT_SIZE;
+
+    // Oppdater størrelseslabel
+    sizeLabel.textContent = `(${size}px)`;
+
+    const iconSvg = ICON_LIBRARY[iconName] || ICON_LIBRARY[DEFAULT_POINT_ICON];
+    const coloredSvg = iconSvg.replace(/currentColor/g, color);
+
+    try {
+        // Bruk base64 data URL direkte i et img-tag for enkel visning
+        const base64Svg = btoa(coloredSvg);
+        previewArea.innerHTML = `<img src="data:image/svg+xml;base64,${base64Svg}" width="${size}" height="${size}" alt="Preview">`;
+    } catch (e) {
+        console.error("Feil ved generering av SVG preview:", e);
+        previewArea.innerHTML = 'Feil'; // Vis feilmelding i preview
+    }
+}
+
 
 /**
  * Håndterer lagring fra punkt-modalen.
@@ -433,18 +486,16 @@ function showAddPointModal(x, y) {
 async function handleSavePointModal() {
     if (!pointModalElement || !pendingPointCoords) return;
 
-    // Hent verdier fra modalen
     const name = document.getElementById('point-name').value.trim();
     const icon = document.getElementById('point-icon').value;
     const color = document.getElementById('point-color').value;
     const size = parseInt(document.getElementById('point-size').value, 10) || DEFAULT_POINT_SIZE;
 
-    // Lag nytt punkt-objekt
     const newPoint = {
         id: Date.now(),
         x: pendingPointCoords.x,
         y: pendingPointCoords.y,
-        type: 'custom', // Kanskje bruke 'custom' som type nå? Eller basere på ikon? La oss bruke 'custom'
+        type: 'custom',
         name: name,
         icon: icon,
         color: color,
@@ -452,12 +503,9 @@ async function handleSavePointModal() {
         timestamp: new Date().toISOString()
     };
 
-    // Legg til i listen og skjul modal
     mapPoints.push(newPoint);
-    pointModalElement.style.display = 'none';
-    pendingPointCoords = null; // Nullstill
+    closePointModal(); // Kall felles lukkefunksjon
 
-    // Oppdater UI og lagre
     drawMap();
     updatePointList();
     try {
@@ -465,7 +513,6 @@ async function handleSavePointModal() {
         logEvent(`La til punkt "${newPoint.name || 'uten navn'}" (ID: ${newPoint.id}) på kartet.`, 'Kart');
     } catch (error) {
         console.error("Kunne ikke lagre nytt punkt:", error);
-        // Fjern punktet fra arrayen igjen hvis lagring feilet
         mapPoints.pop();
         drawMap();
         updatePointList();
@@ -477,10 +524,22 @@ async function handleSavePointModal() {
  * Håndterer avbryt fra punkt-modalen.
  */
 function handleCancelPointModal() {
-    if (!pointModalElement) return;
-    pointModalElement.style.display = 'none';
-    pendingPointCoords = null; // Nullstill
+    closePointModal();
     console.log("Modal avbrutt.");
+}
+
+/**
+ * Lukker modalen og rydder opp listeners/state.
+ */
+function closePointModal() {
+     if (!pointModalElement) return;
+     pointModalElement.style.display = 'none';
+     pendingPointCoords = null;
+
+     // Fjern event listeners for live preview for å unngå duplikater
+     document.getElementById('point-icon')?.removeEventListener('change', updatePointPreview);
+     document.getElementById('point-color')?.removeEventListener('input', updatePointPreview);
+     document.getElementById('point-size')?.removeEventListener('input', updatePointPreview);
 }
 // === 5: INTERACTION MODE & POINT MODAL END ===
 

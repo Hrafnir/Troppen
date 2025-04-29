@@ -126,7 +126,6 @@ async function loadMapDataFromStorage() {
 // === 2: INITIALIZATION END ===
 
 // === 3: MAP IMAGE HANDLING START ===
-// Ingen endringer her fra forrige versjon
 function handleMapUpload(event) {
     const file = event.target.files[0];
     if (!file || !file.type.startsWith('image/')) {
@@ -137,10 +136,10 @@ function handleMapUpload(event) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const imageDataUrl = e.target.result;
-        saveCurrentMapData(imageDataUrl, [], file.name)
+        saveCurrentMapData(imageDataUrl, [], file.name) // Lagre nytt bilde, nullstill punkter
             .then(() => {
                 loadImageOntoCanvas(imageDataUrl);
-                mapPoints = [];
+                mapPoints = []; // Nullstill punkter
                 updatePointList();
                 setMapStatus(`Kart "${file.name}" lastet opp.`);
                 logEvent(`Nytt kart "${file.name}" lastet opp.`, 'Kart');
@@ -169,6 +168,9 @@ function handleMapUpload(event) {
 function loadImageOntoCanvas(imageDataUrl) {
     if (!mapContext) return;
     mapImage = new Image();
+    // Legg til filnavn i dataset for senere bruk ved lagring hvis originalt navn ikke finnes
+    // Dette fungerer kanskje ikke på tvers av økter, men verdt et forsøk.
+    // mapImage.dataset.fileName = document.getElementById('map-upload')?.files[0]?.name;
     mapImage.onload = () => {
         console.log(`Bildet lastet: ${mapImage.width}x${mapImage.height}`);
         drawMap();
@@ -190,8 +192,8 @@ function drawMap() {
         mapCanvas.height = mapImage.height;
         mapContext.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
         mapContext.drawImage(mapImage, 0, 0);
-        drawPoints();
-        console.log("Kart tegnet på canvas.");
+        drawPoints(); // Tegn punkter oppå
+        // console.log("Kart tegnet på canvas."); // Kan fjernes for mindre støy i logg
     } else {
         clearMapDisplay();
         console.log("Ingen kartbilde å tegne.");
@@ -215,7 +217,6 @@ function clearMapDisplay() {
 // === 3: MAP IMAGE HANDLING END ===
 
 // === 4: POINT HANDLING (DRAWING, DELETING, LIST) START ===
-// drawPoints - Må kanskje legge til visuell indikasjon på flytting?
 function drawPoints() {
     if (!mapContext || !mapImage) return;
 
@@ -227,6 +228,7 @@ function drawPoints() {
 
         const svgImage = new Image();
 
+        // Viktig: onload og onerror MÅ defineres FØR man setter src
         svgImage.onload = () => {
             mapContext.save(); // Lagre state før transformasjoner/opacity
             const drawX = point.x - size / 2;
@@ -245,38 +247,44 @@ function drawPoints() {
 
             mapContext.drawImage(svgImage, drawX, drawY, size, size);
 
-            // Tegn navn
-            mapContext.globalAlpha = 1.0; // Full opacity for tekst (selv om punkt er låst/dratt)
-            mapContext.shadowColor = 'transparent'; // Fjern skygge for tekst
-            mapContext.fillStyle = 'black';
-            mapContext.strokeStyle = 'white';
-            mapContext.lineWidth = 2;
-            mapContext.font = `${Math.max(10, size * 0.7)}px sans-serif`;
-            const textX = point.x + size / 2 + 5;
-            const textY = point.y + size / 4;
-            mapContext.strokeText(point.name || `ID ${point.id}`, textX, textY);
-            mapContext.fillText(point.name || `ID ${point.id}`, textX, textY);
+            // Tegn navn (kun hvis det finnes)
+            if (point.name) {
+                mapContext.globalAlpha = 1.0; // Full opacity for tekst
+                mapContext.shadowColor = 'transparent'; // Fjern skygge for tekst
+                mapContext.fillStyle = 'black';
+                mapContext.strokeStyle = 'white';
+                mapContext.lineWidth = 2;
+                mapContext.font = `${Math.max(10, size * 0.7)}px sans-serif`;
+                const textX = point.x + size / 2 + 5;
+                const textY = point.y + size / 4;
+                mapContext.strokeText(point.name, textX, textY); // Tegn outline først
+                mapContext.fillText(point.name, textX, textY); // Tegn fylt tekst oppå
+            }
 
             mapContext.restore(); // Gjenopprett state (opacity, shadow etc.)
         };
         svgImage.onerror = (e) => {
             console.error(`Kunne ikke laste SVG-ikon for punkt ${point.id}:`, e);
+            // Fallback: Tegn en enkel sirkel hvis SVG feiler
             mapContext.fillStyle = color;
             mapContext.beginPath();
             mapContext.arc(point.x, point.y, size / 2, 0, Math.PI * 2);
             mapContext.fill();
         };
+
+        // Sett src ETTER at onload/onerror er definert
         try {
             const coloredSvg = iconSvg.replace(/currentColor/g, color);
+            // Bruk btoa for å lage base64 data URL
             svgImage.src = "data:image/svg+xml;base64," + btoa(coloredSvg);
         } catch (e) {
              console.error("Feil ved konvertering av SVG til Data URL:", e);
+             // Kall onerror manuelt hvis konvertering feiler, slik at fallback tegnes
              svgImage.onerror(e);
         }
     });
 }
 
-// updatePointList - Legg til låseknapp
 function updatePointList() {
     const listElement = document.querySelector('#map-point-list ul');
     if (!listElement) return;
@@ -306,11 +314,13 @@ function updatePointList() {
 
             // Tekst-info
             const textSpan = document.createElement('span');
-            textSpan.textContent = ` ${point.name || `ID: ${point.id}`} (X: ${point.x.toFixed(0)}, Y: ${point.y.toFixed(0)}) - ${point.size}px`;
-            textSpan.style.flexGrow = '1';
-            if (point.locked) {
-                textSpan.textContent += " (Låst)";
-            }
+            let textContent = ` ${point.name || `ID: ${point.id}`} (X: ${point.x.toFixed(0)}, Y: ${point.y.toFixed(0)}) - ${point.size}px`;
+             if (point.locked) {
+                 textContent += " (Låst)";
+             }
+            textSpan.textContent = textContent;
+            textSpan.style.flexGrow = '1'; // La teksten ta opp plassen
+
 
             // Edit-knapp (Aktiverer modal)
             const editBtn = document.createElement('button');
@@ -342,7 +352,6 @@ function updatePointList() {
 
 
 async function handleDeletePoint(pointId) {
-    // Samme som før
     const pointIndex = mapPoints.findIndex(p => p.id === pointId);
     if (pointIndex === -1) return;
     const pointName = mapPoints[pointIndex].name || `ID ${pointId}`;
@@ -357,13 +366,10 @@ async function handleDeletePoint(pointId) {
     } catch (error) {
         console.error(`Kunne ikke lagre kartdata etter sletting av punkt ${pointId}:`, error);
         alert("Kunne ikke lagre endringen etter sletting av punkt.");
+        // Bør legge punktet tilbake? La det være slettet fra UI.
     }
 }
 
-/**
- * Toggler låsestatus for et punkt.
- * @param {number} pointId ID-en til punktet.
- */
 async function togglePointLock(pointId) {
      const point = mapPoints.find(p => p.id === pointId);
      if (!point) return;
@@ -372,16 +378,17 @@ async function togglePointLock(pointId) {
      console.log(`Punkt ${pointId} ${point.locked ? 'låst' : 'låst opp'}.`);
 
      updatePointList(); // Oppdater UI i listen
-     // Trenger ikke tegne kartet på nytt med mindre vi har visuell indikasjon der
+     drawMap(); // Tegn om kartet for å vise evt. visuell endring (opacity)
 
      try {
          await saveCurrentMapData(); // Lagre endringen
          logEvent(`Punkt "${point.name || point.id}" ${point.locked ? 'låst' : 'låst opp'}.`, 'Kart');
      } catch (error) {
          console.error(`Kunne ikke lagre låsestatus for punkt ${pointId}:`, error);
-         // Reverser endringen i UI hvis lagring feilet?
-         point.locked = !point.locked; // Reverser
+         // Reverser endringen i UI hvis lagring feilet
+         point.locked = !point.locked;
          updatePointList();
+         drawMap();
          alert("Kunne ikke lagre endring av låsestatus.");
      }
  }
@@ -389,28 +396,26 @@ async function togglePointLock(pointId) {
 
 // === 5: POINT CREATION, EDITING & DRAGGING START ===
 function setInteractionMode(mode) {
-    // Gå ut av modus hvis man klikker knappen på nytt?
     if (currentInteractionMode === mode && mode === 'add-point') {
-        mode = 'view'; // Gå tilbake til view hvis man klikker add-point igjen
+        mode = 'view';
     }
     currentInteractionMode = mode;
     console.log(`Kart interaksjonsmodus satt til: ${mode}`);
 
     const addPointBtn = document.getElementById('add-point-mode');
-    const addCheckpointBtn = document.getElementById('add-checkpoint-mode'); // Bør kanskje fjernes/endres
+    const addCheckpointBtn = document.getElementById('add-checkpoint-mode');
 
     addPointBtn.classList.remove('active-mode');
-    addCheckpointBtn.classList.remove('active-mode'); // Fjern fra begge
-    mapCanvas.style.cursor = 'default'; // Tilbakestill cursor
+    addCheckpointBtn?.classList.remove('active-mode'); // Sjekk om den finnes
+    mapCanvas.style.cursor = 'default';
 
     if (mode === 'add-point') {
-        addPointBtn.classList.add('active-mode'); // Fremhev kun én knapp
+        addPointBtn.classList.add('active-mode');
         mapCanvas.style.cursor = 'crosshair';
     }
 }
 
 function getCanvasCoordinates(event) {
-    // Samme som før
     if (!mapCanvas) return { x: 0, y: 0 };
     const rect = mapCanvas.getBoundingClientRect();
     const scaleX = mapCanvas.width / rect.width;
@@ -425,7 +430,6 @@ function getCanvasCoordinates(event) {
 }
 
 function setMapStatus(message, isError = false) {
-    // Samme som før
     const statusElement = document.querySelector('#map-tab p:first-of-type');
     if (statusElement) {
         statusElement.textContent = message;
@@ -434,122 +438,103 @@ function setMapStatus(message, isError = false) {
     }
 }
 
-/**
- * Håndterer mousedown: Enten starte flytting eller legge til nytt punkt.
- */
 function handleMouseDown(event) {
-    if (event.button !== 0) return; // Ignorer andre museknapper enn venstre
-
+    if (event.button !== 0) return; // Kun venstre knapp
     const coords = getCanvasCoordinates(event);
 
     if (currentInteractionMode === 'add-point') {
-        // Legg til nytt punkt med prompt (rask metode)
         addNewPointSimple(coords.x, coords.y);
-        // Valgfritt: Gå tilbake til view-modus etter å ha lagt til?
-        // setInteractionMode('view');
+        // Ikke gå ut av modus automatisk, la bruker legge til flere.
     } else if (currentInteractionMode === 'view') {
-        // Prøv å starte flytting av et eksisterende punkt
         const clickedPoint = findPointAt(coords.x, coords.y);
         if (clickedPoint && !clickedPoint.locked) {
             isDragging = true;
             draggedPointId = clickedPoint.id;
-            // Beregn offset fra punktets senter til museklikket
             dragOffsetX = coords.x - clickedPoint.x;
             dragOffsetY = coords.y - clickedPoint.y;
-            mapCanvas.style.cursor = 'grabbing'; // Endre cursor under flytting
+            document.body.classList.add('dragging-point'); // Sett global cursor
             console.log(`Starter flytting av punkt ${draggedPointId}`);
-            drawMap(); // Tegn om for å vise eventuell dra-effekt
+            drawMap(); // Tegn om for dra-effekt
         } else if (clickedPoint && clickedPoint.locked) {
              console.log(`Forsøkte å flytte låst punkt ${clickedPoint.id}`);
-             // Gi en visuell indikasjon? F.eks. en kort shake-animasjon? (Avansert)
              alert("Dette punktet er låst og kan ikke flyttes.");
         }
     }
 }
 
-/**
- * Håndterer mousemove: Flytter punktet hvis dragging er aktiv.
- */
+
 function handleMouseMove(event) {
     if (!isDragging || draggedPointId === null) return;
 
     const point = mapPoints.find(p => p.id === draggedPointId);
     if (!point) { // Sikkerhetssjekk
         isDragging = false;
+        document.body.classList.remove('dragging-point');
         return;
     }
 
     const coords = getCanvasCoordinates(event);
-    // Oppdater punktets posisjon basert på musposisjon og initiell offset
     point.x = coords.x - dragOffsetX;
     point.y = coords.y - dragOffsetY;
-
-    // Begrens til kartets grenser (selv om getCanvasCoordinates også gjør det)
     point.x = Math.max(0, Math.min(mapCanvas.width, point.x));
     point.y = Math.max(0, Math.min(mapCanvas.height, point.y));
 
-
-    // Tegn kartet på nytt for å vise flyttingen (requestAnimationFrame er bedre for ytelse)
-     requestAnimationFrame(drawMap);
-    // drawMap(); // Enklere, men kan lugge
+    // Bruk requestAnimationFrame for jevnere flytting
+    requestAnimationFrame(drawMap);
 }
 
-/**
- * Håndterer mouseup: Avslutter flytting og lagrer.
- */
 async function handleMouseUp(event) {
-    if (!isDragging || draggedPointId === null) return;
+    // Sjekk om vi faktisk dro et punkt
+    const wasDragging = isDragging;
+    const pointIdBeingDragged = draggedPointId;
 
-    console.log(`Avslutter flytting av punkt ${draggedPointId}`);
+    // Rydd opp dra-status FØR async operasjoner
     isDragging = false;
-    mapCanvas.style.cursor = 'default'; // Tilbakestill cursor
+    draggedPointId = null;
+    dragOffsetX = 0;
+    dragOffsetY = 0;
+    document.body.classList.remove('dragging-point'); // Fjern global cursor
 
-    // Finn det flyttede punktet for logging/oppdatering
-    const movedPoint = mapPoints.find(p => p.id === draggedPointId);
+    if (!wasDragging || pointIdBeingDragged === null) return; // Hvis vi ikke dro, er vi ferdige
 
-    drawMap(); // Tegn en siste gang i normal tilstand
-    updatePointList(); // Oppdater koordinatene i listen
+    console.log(`Avslutter flytting av punkt ${pointIdBeingDragged}`);
 
+    const movedPoint = mapPoints.find(p => p.id === pointIdBeingDragged);
+
+    // Tegn en siste gang i normal tilstand (uten dra-effekter)
+    // Bruk requestAnimationFrame for å unngå konflikter med mouseMove
+    requestAnimationFrame(() => {
+        drawMap();
+        updatePointList(); // Oppdater koordinatene i listen
+    });
+
+    // Lagre den nye posisjonen
     try {
-        await saveCurrentMapData(); // Lagre den nye posisjonen
+        await saveCurrentMapData();
         if (movedPoint) {
             logEvent(`Punkt "${movedPoint.name || movedPoint.id}" flyttet til (X: ${movedPoint.x.toFixed(0)}, Y: ${movedPoint.y.toFixed(0)}).`, 'Kart');
         }
     } catch (error) {
-        console.error(`Kunne ikke lagre ny posisjon for punkt ${draggedPointId}:`, error);
+        console.error(`Kunne ikke lagre ny posisjon for punkt ${pointIdBeingDragged}:`, error);
         alert("Kunne ikke lagre den nye posisjonen for punktet.");
-        // Bør ideelt sett resette posisjonen hvis lagring feiler, men det krever å huske forrige posisjon.
-    } finally {
-        draggedPointId = null; // Nullstill uansett
+        // Bør ideelt sett resette posisjonen, men det er komplekst.
     }
 }
 
-/**
- * Håndterer mouseleave: Avbryter flytting hvis musen forlater canvas.
- */
+
 function handleMouseLeave(event) {
     if (isDragging) {
-        console.log("Flytting avbrutt (mus forlot canvas).");
-        // Vi kan velge å enten lagre der den er, eller resette til forrige posisjon.
-        // For enkelhets skyld, lagrer vi der den er nå (samme som mouseup).
-         handleMouseUp(event); // Kall mouseup for å lagre og rydde opp
+        console.log("Flytting avbrutt (mus forlot canvas). Lagrer nåværende posisjon.");
+        handleMouseUp(event); // Kall mouseup for å lagre og rydde opp
     }
 }
 
 
-/**
- * Finner et punkt nær gitte koordinater.
- * @param {number} x X-koordinat.
- * @param {number} y Y-koordinat.
- * @returns {object|null} Punktobjektet hvis funnet, ellers null.
- */
 function findPointAt(x, y) {
-    const clickRadius = 15; // Hvor nærme man må klikke (i piksler) - bør kanskje skaleres med punktstørrelse?
-    // Søk baklengs slik at punkter tegnet sist (og er øverst) sjekkes først
+    const clickRadius = 15;
     for (let i = mapPoints.length - 1; i >= 0; i--) {
         const point = mapPoints[i];
         const pointSize = point.size || DEFAULT_POINT_SIZE;
-        // Bruk en litt større radius enn selve punktet for enklere treff
         const hitRadius = Math.max(clickRadius, pointSize / 2 + 5);
         const dx = x - point.x;
         const dy = y - point.y;
@@ -557,45 +542,37 @@ function findPointAt(x, y) {
             return point;
         }
     }
-    return null; // Ingen punkt funnet
+    return null;
 }
 
-/**
- * Legger til et nytt punkt via prompt, bruker sist brukte stil.
- * @param {number} x X-koordinat
- * @param {number} y Y-koordinat
- */
 async function addNewPointSimple(x, y) {
-    const pointName = prompt(`Skriv inn navn for det nye punktet (bruker ikon: ${lastUsedIcon}, farge: ${lastUsedColor}, str: ${lastUsedSize}px):`, "");
-    // Ikke avbryt hvis bruker trykker cancel, bare bruk tomt navn
+    const pointName = prompt(`Nytt punkt navn (stil: ${lastUsedIcon}/${lastUsedColor}/${lastUsedSize}px):`, "");
 
     const newPoint = {
         id: Date.now(),
         x: x,
         y: y,
         type: 'custom',
-        name: pointName ? pointName.trim() : "",
-        icon: lastUsedIcon, // Bruk sist brukte
-        color: lastUsedColor, // Bruk sist brukte
-        size: lastUsedSize, // Bruk sist brukte
-        locked: false, // Nye punkter er ulåst
+        name: pointName ? pointName.trim() : "", // Tomt navn hvis bruker trykker OK uten å skrive
+        icon: lastUsedIcon,
+        color: lastUsedColor,
+        size: lastUsedSize,
+        locked: false,
         timestamp: new Date().toISOString()
     };
 
     mapPoints.push(newPoint);
+    // Tegn KUN det nye punktet for raskere respons? Nei, hele kartet er tryggest.
     drawMap();
     updatePointList();
 
     try {
         await saveCurrentMapData();
         logEvent(`La til punkt "${newPoint.name || 'uten navn'}" (ID: ${newPoint.id}) på kartet med stil ${lastUsedIcon}/${lastUsedColor}/${lastUsedSize}px.`, 'Kart');
-        // Oppdater sist brukte stil ETTER vellykket lagring
-        lastUsedIcon = newPoint.icon;
-        lastUsedColor = newPoint.color;
-        lastUsedSize = newPoint.size;
+        // Ikke oppdater sist brukte stil her, det gjøres ved redigering.
     } catch (error) {
         console.error("Kunne ikke lagre nytt punkt (simple):", error);
-        mapPoints.pop(); // Fjern fra UI ved feil
+        mapPoints.pop();
         drawMap();
         updatePointList();
         alert("Kunne ikke lagre det nye punktet.");
@@ -605,30 +582,21 @@ async function addNewPointSimple(x, y) {
 
 // --- Modal funksjoner (for redigering) ---
 
-/**
- * Viser modalen for å redigere et eksisterende punkt.
- * @param {number} pointId ID-en til punktet som skal redigeres.
- */
 function handleEditPoint(pointId) {
     const point = mapPoints.find(p => p.id === pointId);
-    if (!point) {
-        console.error(`Punkt med ID ${pointId} ikke funnet for redigering.`);
-        return;
-    }
-
-    if (isDragging) return; // Ikke åpne modal hvis man drar et punkt
+    if (!point) return;
+    if (isDragging) return;
 
     console.log(`Åpner modal for å redigere punkt ${pointId}`);
-    currentlyEditingPointId = pointId; // Sett hvilket punkt vi redigerer
+    currentlyEditingPointId = pointId;
 
-    // Fyll modalen med punktets data
     document.getElementById('point-name').value = point.name || '';
     document.getElementById('point-icon').value = point.icon || DEFAULT_POINT_ICON;
     document.getElementById('point-color').value = point.color || DEFAULT_POINT_COLOR;
     document.getElementById('point-size').value = point.size || DEFAULT_POINT_SIZE;
-    document.getElementById('point-modal-title').textContent = 'Rediger punkt'; // Endre tittel
+    document.getElementById('point-modal-title').textContent = 'Rediger punkt';
 
-    // Sett opp preview listeners (som i showAddPointModal)
+    // Sett opp preview listeners
     const iconSelect = document.getElementById('point-icon');
     const colorInput = document.getElementById('point-color');
     const sizeInput = document.getElementById('point-size');
@@ -639,23 +607,19 @@ function handleEditPoint(pointId) {
     colorInput.addEventListener('input', updatePointPreview);
     sizeInput.addEventListener('input', updatePointPreview);
 
-    updatePointPreview(); // Oppdater preview med punktets data
+    updatePointPreview(); // Oppdater preview
 
     pointModalElement.style.display = 'block';
     document.getElementById('point-name').focus();
 }
 
-/**
- * Oppdaterer forhåndsvisningen av ikonet i modalen.
- */
 function updatePointPreview() {
-    // Samme som før
     const previewArea = document.getElementById('point-preview');
     const iconSelect = document.getElementById('point-icon');
     const colorInput = document.getElementById('point-color');
     const sizeInput = document.getElementById('point-size');
     const sizeLabel = document.getElementById('point-size-label');
-    if (!previewArea || !iconSelect || !colorInput || !sizeInput) return;
+    if (!previewArea || !iconSelect || !colorInput || !sizeInput || !sizeLabel) return;
     const iconName = iconSelect.value;
     const color = colorInput.value;
     const size = parseInt(sizeInput.value, 10) || DEFAULT_POINT_SIZE;
@@ -672,9 +636,6 @@ function updatePointPreview() {
 }
 
 
-/**
- * Håndterer lagring fra punkt-modalen (NÅ FOR REDIGERING).
- */
 async function handleSavePointModal() {
     if (!pointModalElement || currentlyEditingPointId === null) return;
 
@@ -691,14 +652,13 @@ async function handleSavePointModal() {
     const color = document.getElementById('point-color').value;
     const size = parseInt(document.getElementById('point-size').value, 10) || DEFAULT_POINT_SIZE;
 
-    // Oppdater punkt-objektet direkte i mapPoints-arrayen
+    // Oppdater punkt-objektet
     point.name = name;
     point.icon = icon;
     point.color = color;
     point.size = size;
-    // Beholder original timestamp, x, y, type, locked
 
-    const originalId = currentlyEditingPointId; // Lagre ID for logging
+    const originalId = currentlyEditingPointId;
     closePointModal(); // Lukk modal og nullstill state
 
     drawMap();
@@ -707,34 +667,30 @@ async function handleSavePointModal() {
     try {
         await saveCurrentMapData();
         logEvent(`Punkt "${point.name || point.id}" (ID: ${originalId}) oppdatert.`, 'Kart');
-        // Oppdater sist brukte stil ETTER vellykket lagring
+        // Oppdater sist brukte stil ETTER vellykket redigering
         lastUsedIcon = point.icon;
         lastUsedColor = point.color;
         lastUsedSize = point.size;
+        console.log("Sist brukte stil oppdatert til:", lastUsedIcon, lastUsedColor, lastUsedSize);
     } catch (error) {
         console.error(`Kunne ikke lagre endringer for punkt ${originalId}:`, error);
         alert("Kunne ikke lagre endringene for punktet.");
-        // Bør ideelt sett resette endringene i mapPoints-arrayen, men det krever mer state-håndtering.
+        // Resette endringer? Vanskelig uten mer state.
     }
 }
 
-/**
- * Håndterer avbryt fra punkt-modalen.
- */
+
 function handleCancelPointModal() {
     closePointModal();
     console.log("Modal (redigering) avbrutt.");
 }
 
-/**
- * Lukker modalen og rydder opp listeners/state.
- */
 function closePointModal() {
      if (!pointModalElement) return;
      pointModalElement.style.display = 'none';
-     currentlyEditingPointId = null; // Nullstill redigerings-ID
+     currentlyEditingPointId = null;
 
-     // Fjern event listeners for live preview
+     // Fjern event listeners
      document.getElementById('point-icon')?.removeEventListener('change', updatePointPreview);
      document.getElementById('point-color')?.removeEventListener('input', updatePointPreview);
      document.getElementById('point-size')?.removeEventListener('input', updatePointPreview);
@@ -744,7 +700,6 @@ function closePointModal() {
 
 // === 6: DATA SAVING START ===
 async function saveCurrentMapData(imageDataUrl = null, pointsToSave = null, imageName = null) {
-    // Samme som før, men inkluderer 'locked' feltet
     const currentImageData = imageDataUrl || (mapImage ? mapImage.src : null);
     const currentPoints = (pointsToSave || mapPoints).map(p => ({
         id: p.id,
@@ -755,10 +710,11 @@ async function saveCurrentMapData(imageDataUrl = null, pointsToSave = null, imag
         icon: p.icon || DEFAULT_POINT_ICON,
         color: p.color || DEFAULT_POINT_COLOR,
         size: p.size || DEFAULT_POINT_SIZE,
-        locked: p.locked || false, // Sørg for at locked lagres
-        timestamp: p.timestamp
+        locked: p.locked || false,
+        timestamp: p.timestamp || new Date().toISOString() // Legg til timestamp hvis det mangler
     }));
-    const currentImageName = imageName || mapImage?.dataset?.fileName || 'Lagret kart'; // Prøv å få tak i navnet
+     // Prøv å hente filnavn fra mapImage.dataset hvis det finnes, ellers bruk 'Lagret kart'
+    const currentImageName = imageName || mapImage?.dataset?.fileName || 'Lagret kart';
 
     if (!currentImageData) {
         console.warn("saveCurrentMapData: Ingen bildedata å lagre.");
@@ -766,13 +722,28 @@ async function saveCurrentMapData(imageDataUrl = null, pointsToSave = null, imag
     }
 
     try {
+        // Kall den eksisterende saveMapData i storage.js (som vi definerte i map.js tidligere)
         await saveMapData(currentMapId, currentImageData, currentPoints, currentImageName);
         console.log("Kartdata lagret til IndexedDB.");
     } catch (error) {
         console.error("Feil ved lagring av kartdata til storage:", error);
         logEvent(`Feil ved lagring av kartdata: ${error.message}`, 'Error');
         setMapStatus("Kunne ikke lagre kartendringer.", true);
-        throw error;
+        throw error; // Kast feilen videre
     }
 }
+
+// Husk at saveMapData-funksjonen som faktisk snakker med storage.js ble definert i map.js i et tidligere svar.
+// Den ser slik ut (trenger ikke endres):
+// async function saveMapData(mapId, imageData, points, imageName) {
+//     const data = {
+//         id: mapId,
+//         imageData: imageData,
+//         points: points || [],
+//         imageName: imageName || null,
+//         lastSaved: new Date().toISOString()
+//     };
+//     return updateData(STORE_MAPDATA, data); // Bruker updateData fra storage.js
+// }
+
 // === 6: DATA SAVING END ===

@@ -336,3 +336,79 @@ button#clear-data-button:hover {
     color: darkred;
 }
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) END === */
+
+/* === 11: MODAL STYLING START === */
+.modal-overlay {
+    position: fixed; /* Står fast på skjermen */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Halvgjennomsiktig bakgrunn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Legger seg over header */
+    padding: 1rem; /* Padding rundt innholdet */
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    min-width: 300px; /* Minimumsbredde */
+    max-width: 90%; /* Maksbredde */
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.modal-content .form-group {
+    margin-bottom: 1rem;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: bold;
+}
+
+.modal-content input[type="text"],
+.modal-content select,
+.modal-content input[type="number"] {
+    width: 100%; /* Fyll bredden */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-content input[type="color"] {
+    padding: 0; /* Fargevelger trenger ofte spesiell styling */
+    height: 40px; /* Gi den litt høyde */
+    width: 100px; /* Og bredde */
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.modal-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end; /* Knapper til høyre */
+    gap: 10px;
+}
+
+.modal-actions button {
+    padding: 0.6rem 1.2rem;
+}
+
+.modal-actions button.secondary {
+    background-color: #6c757d; /* Grå for avbryt */
+}
+.modal-actions button.secondary:hover {
+    background-color: #5a6268;
+}
+/* === 11: MODAL STYLING END === */

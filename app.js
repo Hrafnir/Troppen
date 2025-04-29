@@ -128,7 +128,6 @@ async function loadDataForTab(tabId) {
     }
 }
 // === 1: INITIALIZATION & DOM READY END ===
-
 // === 2: TAB SWITCHING LOGIC START ===
 let pendingTabSwitch = null;
 

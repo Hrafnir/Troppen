@@ -136,10 +136,19 @@
     </main>
     <!-- === 2: MAIN CONTENT AREA END === -->
 
-    <!-- === 2.7: POINT MODAL START === -->
+        <!-- === 2.7: POINT MODAL START === -->
     <div id="point-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <h3 id="point-modal-title">Legg til nytt punkt</h3>
+
+            <!-- Forhåndsvisning -->
+            <div class="form-group preview-group">
+                <label>Forhåndsvisning:</label>
+                <div id="point-preview" class="point-preview-area">
+                    <!-- Ikonet vises her av JS -->
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="point-name">Navn:</label>
                 <input type="text" id="point-name" placeholder="F.eks. OP Bakketopp">
@@ -158,6 +167,7 @@
             <div class="form-group">
                 <label for="point-size">Størrelse (px):</label>
                 <input type="number" id="point-size" value="16" min="4" max="64" step="2">
+                 <span id="point-size-label" style="font-size: 0.8em; margin-left: 5px;">(16px)</span> <!-- Visuell indikasjon -->
             </div>
             <div class="modal-actions">
                 <button id="save-point-button">Lagre punkt</button>

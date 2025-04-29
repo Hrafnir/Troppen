@@ -28,7 +28,7 @@
         <!-- === 2.1: MAP TAB CONTENT START === -->
         <section id="map-tab" class="tab-content active">
             <h2>Kart</h2>
-            <p>Her laster du opp og administrerer kart.</p>
+            <p>Kart ikke lastet.</p> <!-- Statusmelding oppdateres av JS -->
              <div>
                 <label for="map-upload">Last opp kartbilde:</label>
                 <input type="file" id="map-upload" accept="image/*">
@@ -38,13 +38,13 @@
                 <canvas id="map-canvas"></canvas>
             </div>
             <div>
+                <!-- Disse knappene starter samme modus nå -->
                 <button id="add-point-mode">Legg til punkt</button>
-                <button id="add-checkpoint-mode">Legg til sjekkpunkt</button>
-                <!-- Flere kontroller for kartet -->
+                <button id="add-checkpoint-mode">Legg til punkt</button>
             </div>
              <div id="map-point-list">
                  <h3>Plottede punkter:</h3>
-                 <ul></ul>
+                 <ul><li>Ingen punkter plottet ennå.</li></ul>
              </div>
         </section>
         <!-- === 2.1: MAP TAB CONTENT END === -->
@@ -56,6 +56,7 @@
             <button id="add-unit-button">Legg til ny enhet</button>
             <div id="unit-list">
                 <!-- Liste over definerte enheter vises her -->
+                 <p>Laster enheter...</p>
             </div>
         </section>
         <!-- === 2.2: UNITS TAB CONTENT END === -->
@@ -81,6 +82,7 @@
             <h2>Operasjonsbilde</h2>
             <p>Visuell oversikt over kart, enheter og bevegelser.</p>
              <div id="ops-map-display-area">
+                 <!-- Canvas for operasjonsbilde kommer her, kan gjenbruke mye fra map.js -->
                  <canvas id="ops-map-canvas"></canvas>
              </div>
              <div id="ops-unit-status">
@@ -134,14 +136,45 @@
     </main>
     <!-- === 2: MAIN CONTENT AREA END === -->
 
-        <!-- === 3: SCRIPTS START === -->
+    <!-- === 2.7: POINT MODAL START === -->
+    <div id="point-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 id="point-modal-title">Legg til nytt punkt</h3>
+            <div class="form-group">
+                <label for="point-name">Navn:</label>
+                <input type="text" id="point-name" placeholder="F.eks. OP Bakketopp">
+            </div>
+            <div class="form-group">
+                <label for="point-icon">Ikon:</label>
+                <select id="point-icon">
+                    <!-- Fylles dynamisk av map.js -->
+                    <option value="circle">Laster...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="point-color">Farge:</label>
+                <input type="color" id="point-color" value="#0000FF"> <!-- Default blå -->
+            </div>
+            <div class="form-group">
+                <label for="point-size">Størrelse (px):</label>
+                <input type="number" id="point-size" value="16" min="4" max="64" step="2">
+            </div>
+            <div class="modal-actions">
+                <button id="save-point-button">Lagre punkt</button>
+                <button id="cancel-point-button" class="secondary">Avbryt</button>
+            </div>
+        </div>
+    </div>
+    <!-- === 2.7: POINT MODAL END === -->
+
+    <!-- === 3: SCRIPTS START === -->
     <script src="storage.js"></script>
-    <script src="map.js"></script> <!-- Ny fil lagt til her -->
+    <script src="map.js"></script> <!-- Kart-modul -->
     <!-- Andre moduler kommer her senere -->
     <!-- <script src="units.js"></script> -->
     <!-- <script src="ops.js"></script> -->
     <!-- <script src="log.js"></script> -->
-    <script src="app.js"></script>
+    <script src="app.js"></script> <!-- Hovedapplikasjon sist -->
     <!-- === 3: SCRIPTS END === -->
 
 </body>

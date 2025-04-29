@@ -8,7 +8,6 @@
 body {
     font-family: sans-serif;
     line-height: 1.6;
-    padding: 0;
     background-color: #f4f4f4;
     display: flex;
     flex-direction: column;
@@ -22,13 +21,12 @@ header {
     background-color: #333;
     color: #fff;
     padding: 1rem;
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
-    z-index: 1000;
-    height: 100px; /* Definert høyde for bruk i calc() */
-    flex-shrink: 0; /* Header skal ikke krympe */
+    height: 100px; /* Fast høyde */
+    flex-shrink: 0; /* Skal ikke krympe */
+    z-index: 1000; /* Over innhold */
+    position: sticky; /* Kan bruke sticky i stedet for fixed for enklere layout */
+    top: 0;
 }
 
 header h1 {
@@ -63,28 +61,30 @@ nav {
 
 /* === 3: MAIN CONTENT AREA START === */
 main#app-content {
+    /* Tar opp all resterende plass */
+    flex-grow: 1;
+    /* Tillater scrolling for innholdet som er høyere enn tilgjengelig plass */
+    overflow-y: auto;
+    /* Padding for avstand fra kantene og header (hvis ikke sticky brukes) */
     padding: 1rem;
-    margin-top: 100px; /* Samme som headerens høyde */
-    height: calc(100vh - 100px); /* Fyll resten av skjermen */
-    overflow-y: auto; /* Scrollbar for HELE innholdet i main hvis det blir for høyt */
-    /* display: flex; flex-direction: column; Trengs ikke her, body er allerede flex col */
+    /* Sikrer at flex-items (tabs) kan bruke høyden */
+    display: flex; /* Viktig! Gjør main til en flex container */
+    flex-direction: column; /* Slik at tab-content kan bruke height 100% */
 }
 /* === 3: MAIN CONTENT AREA END === */
 
 /* === 4: TAB CONTENT STYLING START === */
 .tab-content {
-    display: none; /* Skjul alle faner som standard */
-    /* Fjerner padding her, legger det på interne elementer ved behov */
-    /* padding: 1rem; */
+    display: none; /* Skjult som standard */
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
-    /* margin-top: 1rem; Fjernet margin, padding på main håndterer avstand */
     animation: fadeIn 0.5s;
-     /* Hele tab-content skal kunne bruke tilgjengelig høyde i main */
-     height: 100%; /* Fyll main-området */
-     display: flex; /* Flex MÅ være her for .active */
-     flex-direction: column;
+    /* VIKTIG: La tab-innholdet fylle main */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* Standard layout inni en fane */
 }
 
 .tab-content.active {
@@ -95,6 +95,16 @@ main#app-content {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* Generell padding for elementer øverst i fanene */
+.tab-content > h2,
+.tab-content > p:first-of-type, /* Første avsnitt (ofte status) */
+.tab-content > div:first-of-type, /* Første div (ofte kontroller) */
+.tab-content > .roster-controls,
+.tab-content > button#add-unit-button {
+    padding: 1rem 1rem 0 1rem; /* Padding top/left/right */
+    flex-shrink: 0; /* Ikke la disse krympe */
+}
 /* === 4: TAB CONTENT STYLING END === */
 
 
@@ -103,357 +113,117 @@ main#app-content {
 /* === 5: MAP CANVAS STYLING (TIDLIGERE) END === */
 
 /* === 6: FORM ELEMENTS & BUTTONS START === */
-label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="file"],
-select,
-button {
-    padding: 0.5rem;
-    margin-bottom: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: inherit;
-}
-
-input[type="file"] {
-    border: none;
-    padding-left: 0;
-}
-
-button {
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    margin-right: 5px;
-     flex-shrink: 0;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-button#clear-data-button {
-    background-color: #dc3545;
-}
-
-button#clear-data-button:hover {
-    background-color: #c82333;
-}
+label { display: block; margin-bottom: 0.25rem; font-weight: bold; }
+input[type="text"], input[type="file"], select, button { padding: 0.5rem; margin-bottom: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: inherit; }
+input[type="file"] { border: none; padding-left: 0; }
+button { background-color: #007bff; color: white; cursor: pointer; transition: background-color 0.2s ease; margin-right: 5px; flex-shrink: 0; }
+button:hover { background-color: #0056b3; }
+button:disabled { background-color: #ccc; cursor: not-allowed; }
+button#clear-data-button { background-color: #dc3545; }
+button#clear-data-button:hover { background-color: #c82333; }
 /* === 6: FORM ELEMENTS & BUTTONS END === */
 
 /* === 7: ROSTER SPECIFIC STYLES START === */
-#roster-tab > .roster-controls, /* Kontrollene øverst */
-#roster-tab > h2 { /* Eventuell tittel hvis den var utenfor controls */
-    padding: 1rem 1rem 0 1rem; /* Padding for å matche .tab-content */
-    flex-shrink: 0; /* Ikke la kontroller krympe */
-    border-bottom: 1px solid #ccc; /* Behold skillelinje */
-     margin-bottom: 0; /* Fjern margin */
-}
-
-#roster-display { /* Selve området med tabeller */
+#roster-display { /* Området med tabeller */
     flex-grow: 1; /* Ta opp resterende plass */
-    overflow-y: auto; /* Scrollbar for roster-tabellene */
+    overflow-y: auto; /* Scrollbar KUN for dette området */
     padding: 1rem; /* Padding inne i display-området */
+    min-height: 0; /* Forhindre flexbox krympeproblemer */
 }
-
-#roster-display .squad-section {
-    margin-bottom: 1.5rem;
-}
-
-#roster-display table.roster-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-#roster-display th,
-#roster-display td {
-    border: 1px solid #ddd;
-    padding: 4px 6px;
-    text-align: left;
-    vertical-align: middle;
-}
-
-#roster-display th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    font-size: 0.9em;
-}
-
-#roster-display td {
-    font-size: 0.95em;
-}
-
-#roster-display .roster-input,
-#roster-display .roster-select {
-    width: 100%;
-    padding: 3px 4px;
-    margin-bottom: 0;
-    font-size: inherit;
-    border-radius: 2px;
-}
-#roster-display .custom-role-input {
-    width: calc(100% - 8px);
-}
-
-#roster-display td button {
-    padding: 2px 5px;
-    font-size: 0.9em;
-    margin-right: 0;
-}
-
-#roster-display tr.changed {
-    background-color: #fffacd;
-}
+#roster-display .squad-section { margin-bottom: 1.5rem; }
+#roster-display table.roster-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+#roster-display th, #roster-display td { border: 1px solid #ddd; padding: 4px 6px; text-align: left; vertical-align: middle; }
+#roster-display th { background-color: #f2f2f2; font-weight: bold; font-size: 0.9em; }
+#roster-display td { font-size: 0.95em; }
+#roster-display .roster-input, #roster-display .roster-select { width: 100%; padding: 3px 4px; margin-bottom: 0; font-size: inherit; border-radius: 2px; }
+#roster-display .custom-role-input { width: calc(100% - 8px); }
+#roster-display td button { padding: 2px 5px; font-size: 0.9em; margin-right: 0; }
+#roster-display tr.changed { background-color: #fffacd; }
 /* === 7: ROSTER SPECIFIC STYLES END === */
 
 /* === 8: LOG SPECIFIC STYLES START === */
-#log-tab > div:first-of-type { /* Container for input/knapp */
-    padding: 1rem 1rem 0 1rem;
-    flex-shrink: 0;
-}
-#log-tab h2, #log-tab > p { /* Tittel og intro */
-     padding: 1rem 1rem 0 1rem;
-     flex-shrink: 0;
-}
-
-
 #log-display { /* Container for listen */
-    flex-grow: 1;
-    overflow-y: hidden; /* Skal ikke scrolle selv, listen inni gjør det */
-    padding: 0 1rem 1rem 1rem; /* Padding på bunn/sider */
-    display: flex; /* Bruk flex for å kontrollere listen */
+    flex-grow: 1; /* Ta opp plassen */
+    overflow-y: hidden; /* Skal ikke scrolle selv */
+    padding: 0 1rem 1rem 1rem;
+    display: flex;
     flex-direction: column;
+     min-height: 0; /* Forhindre flexbox krympeproblemer */
 }
-
 #log-list {
-    list-style: none;
-    padding: 0;
-    /* max-height: 400px; Fjernet fast max-height */
-    flex-grow: 1; /* La listen ta plassen */
-    overflow-y: auto; /* Scrollbar for selve listen */
-    border: 1px solid #eee;
-    /* margin-top: 1rem; Fjernet margin */
+    list-style: none; padding: 0; flex-grow: 1; /* Voks for å fylle #log-display */
+    overflow-y: auto; /* Scrollbar for selve listen */ border: 1px solid #eee;
 }
-
-#log-list li {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-    font-family: monospace;
-    font-size: 0.9em;
-}
-
-#log-list li:nth-child(odd) {
-    background-color: #f9f9f9;
-}
+#log-list li { padding: 8px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 0.9em; }
+#log-list li:nth-child(odd) { background-color: #f9f9f9; }
 /* === 8: LOG SPECIFIC STYLES END === */
 
 /* === 9: UNIT LIST STYLES START === */
-#units-tab > button#add-unit-button, /* Knappen øverst */
-#units-tab > h2, #units-tab > p {
-     padding: 1rem 1rem 0 1rem;
-     flex-shrink: 0;
-     margin-bottom: 0; /* Fjern margin på knappen */
-}
-
 #unit-list { /* Container for enhetslisten */
     flex-grow: 1; /* Ta opp resterende plass */
-    overflow-y: auto; /* Scrollbar for listen med enheter */
-    padding: 1rem; /* Padding rundt listen */
+    overflow-y: auto; /* Scrollbar for listen */
+    padding: 1rem;
+     min-height: 0; /* Forhindre flexbox krympeproblemer */
 }
-
-#unit-list .unit-item {
-    border: 1px solid #eee;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    background-color: #fff;
-}
-
-#unit-list .unit-item h4 {
-    margin-bottom: 5px;
-    display: flex; /* For ikon justering */
-    align-items: center;
-}
-
-#unit-list .unit-item button {
-    padding: 3px 6px;
-    font-size: 0.9em;
-    margin-right: 3px;
-}
+#unit-list .unit-item { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 4px; background-color: #fff; }
+#unit-list .unit-item h4 { margin-bottom: 5px; display: flex; align-items: center; }
+#unit-list .unit-item button { padding: 3px 6px; font-size: 0.9em; margin-right: 3px; }
 /* === 9: UNIT LIST STYLES END === */
 
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) START === */
-#map-tab > div:not(#map-display-area):not(#map-point-list), /* Gjelder kontroller */
-#map-tab > h2,
-#map-tab > p {
-    padding: 1rem 1rem 0 1rem; /* Padding for topp-elementer */
-    flex-shrink: 0;
-}
-
 #map-display-area {
     background-color: #e0e0e0;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: auto; /* Scroll INNE i kartområdet hvis kartet er større */
+    overflow: auto; /* Scroll INNE i kartområdet */
     border: 1px solid #ccc;
     margin: 0 1rem 1rem 1rem; /* Margin rundt kartområdet */
-    flex-grow: 1; /* Ta opp ALL tilgjengelig vertikal plass */
-    min-height: 300px; /* Sørg for en minimumshøyde, men la den vokse */
+    flex-grow: 1; /* VIKTIG: La kartområdet vokse */
+    min-height: 0; /* VIKTIG: Forhindre flexbox krympeproblemer */
 }
+#map-canvas { background-color: #ffffff; max-width: 100%; max-height: 100%; display: block; object-fit: contain; }
 
-#map-canvas {
-    background-color: #ffffff;
-    max-width: 100%; /* Canvas kan ikke være bredere enn container */
-    max-height: 100%; /* Canvas kan ikke være høyere enn container */
-    display: block;
-    object-fit: contain;
+/* Listen under kartet */
+#map-tab > #map-point-list {
+    padding: 0 1rem 1rem 1rem;
+    flex-shrink: 0; /* Ikke krymp */
+    max-height: 200px; /* Begrenset høyde */
+    overflow-y: auto; /* Egen scrollbar */
+    border-top: 1px solid #eee;
 }
-
-#map-tab > #map-point-list { /* Listen under kartet */
-    padding: 0 1rem 1rem 1rem; /* Padding under listen */
-    flex-shrink: 0;
-     max-height: 200px; /* Begrenset høyde */
-     overflow-y: auto; /* Egen scrollbar */
-     border-top: 1px solid #eee; /* Skille over listen */
-     /* border: 1px solid #eee; */
-     /* padding: 0.5rem; */
-}
-#map-point-list h3 {
-     margin-top: 0.5rem;
-     margin-bottom: 0.5rem;
-}
-
-#map-point-list ul {
-     list-style: none;
-     padding-left: 0;
-     margin-top: 0;
-}
-
-#map-point-list li {
-     padding: 5px 0;
-     border-bottom: 1px dotted #ccc;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-}
-
-/* Knapper i punktlisten */
-#map-point-list li button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0 5px;
-    font-size: 1em;
-    flex-shrink: 0;
-    margin-left: 5px;
-}
+#map-point-list h3 { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+#map-point-list ul { list-style: none; padding-left: 0; margin-top: 0; }
+#map-point-list li { padding: 5px 0; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; align-items: center; }
+#map-point-list li button { background-color: transparent; border: none; cursor: pointer; padding: 0 5px; font-size: 1em; flex-shrink: 0; margin-left: 5px; }
 #map-point-list li button:hover { opacity: 0.7; }
 #map-point-list li button[title*="Slett"] { color: red; }
 #map-point-list li button[title*="Slett"]:hover { color: darkred; }
 #map-point-list li button[title*="Rediger"] { color: #007bff; }
 #map-point-list li button[title*="Lås"] { color: #555; }
-
-
-/* Styling for låste elementer i listen */
 #map-point-list li.locked-point-item { opacity: 0.7; }
 .point-list-preview { display: inline-block; margin-right: 8px; vertical-align: middle; }
 .point-list-preview img { display: block; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; }
-
-/* Global cursor for dragging */
 body.dragging-point { cursor: grabbing !important; }
-
-/* Styling for aktive modusknapper på kart-fanen */
-#map-tab button.active-mode {
-    background-color: #28a745;
-    font-weight: bold;
-    border: 2px solid #1e7e34;
-}
+#map-tab button.active-mode { background-color: #28a745; font-weight: bold; border: 2px solid #1e7e34; }
 /* === 10: MAP SPECIFIC STYLES (ADDITIONS) END === */
 
 
 /* === 11: MODAL STYLING START === */
-/* Apply overlay to both modals */
-#point-modal, #unit-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: none; /* Hidden by default */
-    justify-content: center;
-    align-items: center;
-    z-index: 1001;
-    padding: 1rem;
-    animation: fadeInModalBackground 0.3s ease-out forwards;
-}
-
-@keyframes fadeInModalBackground {
-    from { background-color: rgba(0, 0, 0, 0); }
-    to { background-color: rgba(0, 0, 0, 0.6); }
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 1.5rem 2rem 2rem 2rem;
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
-    min-width: 350px;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: zoomInModalContent 0.3s ease-out forwards;
-    transform: scale(0.95);
-    opacity: 0;
-}
-
-@keyframes zoomInModalContent {
-    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 1.4em;
-    color: #333;
-}
-
+#point-modal, #unit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1001; padding: 1rem; animation: fadeInModalBackground 0.3s ease-out forwards; }
+@keyframes fadeInModalBackground { from { background-color: rgba(0, 0, 0, 0); } to { background-color: rgba(0, 0, 0, 0.6); } }
+.modal-content { background-color: #fff; padding: 1.5rem 2rem 2rem 2rem; border-radius: 8px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25); min-width: 350px; max-width: 500px; max-height: 90vh; overflow-y: auto; animation: zoomInModalContent 0.3s ease-out forwards; transform: scale(0.95); opacity: 0; }
+@keyframes zoomInModalContent { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-content h3 { margin-top: 0; margin-bottom: 1.5rem; text-align: center; font-size: 1.4em; color: #333; }
 .modal-content .form-group { margin-bottom: 1.2rem; }
 .modal-content label { display: block; margin-bottom: 0.4rem; font-weight: bold; font-size: 0.95em; color: #555; }
-
-.modal-content input[type="text"],
-.modal-content select,
-.modal-content input[type="number"] {
-    width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; transition: border-color 0.2s ease;
-}
-.modal-content input[type="text"]:focus,
-.modal-content select:focus,
-.modal-content input[type="number"]:focus { border-color: #007bff; outline: none; }
-
+.modal-content input[type="text"], .modal-content select, .modal-content input[type="number"] { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; transition: border-color 0.2s ease; }
+.modal-content input[type="text"]:focus, .modal-content select:focus, .modal-content input[type="number"]:focus { border-color: #007bff; outline: none; }
 .modal-content input[type="color"] { padding: 2px; height: 40px; width: 80px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; vertical-align: middle; }
-
 .modal-actions { margin-top: 2rem; display: flex; justify-content: flex-end; gap: 10px; }
 .modal-actions button { padding: 0.7rem 1.5rem; font-weight: bold; border-radius: 5px; }
 .modal-actions button.secondary { background-color: #6c757d; }
 .modal-actions button.secondary:hover { background-color: #5a6268; }
-
-/* Preview styling (consistent for both modals) */
 .modal-content .preview-group { margin-bottom: 1.5rem; text-align: center; }
 .modal-content .preview-group label { display: block; margin-bottom: 0.6rem; font-weight: bold; font-size: 0.95em; color: #555; }
 .point-preview-area { display: inline-block; width: 80px; height: 80px; padding: 5px; border: 1px dashed #ccc; background-color: #f8f8f8; display: flex; justify-content: center; align-items: center; overflow: hidden; }

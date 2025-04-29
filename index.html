@@ -22,10 +22,7 @@
     </header>
     <!-- === 1: HEADER END === -->
 
-    <!-- === 2: MAIN CONTENT AREA START === -->
-    <main id="app-content">
-
-        <!-- === 2.1: MAP TAB CONTENT START === -->
+            <!-- === 2.1: MAP TAB CONTENT START === -->
         <section id="map-tab" class="tab-content active">
             <h2>Kart</h2>
             <p>Kart ikke lastet.</p> <!-- Statusmelding oppdateres av JS -->
@@ -38,9 +35,10 @@
                 <canvas id="map-canvas"></canvas>
             </div>
             <div>
-                <!-- Disse knappene starter samme modus nå -->
+                <!-- Denne knappen starter add-point modus -->
                 <button id="add-point-mode">Legg til punkt</button>
-                <button id="add-checkpoint-mode">Legg til punkt</button>
+                <!-- Denne er skjult/ubrukt for nå, men lar den stå kommentert ut -->
+                 <button id="add-checkpoint-mode" style="display: none;">Legg til sjekkpunkt</button>
             </div>
              <div id="map-point-list">
                  <h3>Plottede punkter:</h3>

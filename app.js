@@ -55,16 +55,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         await initDB();
         console.log("Database initialisert vellykket.");
 
-        // Initialiser UI-moduler FØR event listeners settes opp
-        initializeMapModule(); // <--- Nytt kall for kart
+        // Initialiser UI-moduler
+        initializeMapModule();
+        initializeUnitsModule(); // <--- Nytt kall for enheter
+        // initializeOpsModule(); // Kommer senere
 
-        initializeTabs(); // Setter opp fanebytte-logikk (inkl. ulagret sjekk)
-        initializeEventListeners(); // Setter opp generelle listeners
+        initializeTabs();
+        initializeEventListeners(); // Generelle listeners
 
-        // Sjekk om default roster skal opprettes
         await checkAndCreateDefaultRoster();
-
-        // Last inn data for initielt aktiv fane og deretter roster/logg i bakgrunnen
         await loadInitialData();
 
         console.log("Applikasjon klar.");
@@ -80,17 +79,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadInitialData() {
     const activeTabButton = document.querySelector('.tab-button.active');
-    let activeTabId = 'map'; // Default til kart hvis ingen er aktiv enda
+    let activeTabId = 'map'; // Default til kart
     if (activeTabButton) {
         activeTabId = activeTabButton.getAttribute('data-tab');
     }
-    // Last data for aktiv fane først (kan trigge map load hvis den er aktiv)
     await loadDataForTab(activeTabId);
 
-    // Last Roster og Logg data uansett (i bakgrunnen)
-    // Unngå å laste på nytt hvis de var den aktive fanen
+    // Last Roster og Logg data uansett i bakgrunnen
     if (activeTabId !== 'roster') await loadRosterData();
     if (activeTabId !== 'log') await loadLogData();
+    // Last Units data også, slik at listen er klar
+    if (activeTabId !== 'units') await loadUnitsData();
 }
 
 // Funksjon for å laste data basert på fane-ID
@@ -104,11 +103,14 @@ async function loadDataForTab(tabId) {
             case 'log':
                 await loadLogData();
                 break;
-            case 'units':
-                await loadUnitsData();
+            case 'units': // <--- Ny case for enheter
+                if (typeof loadUnitsData === 'function') {
+                    await loadUnitsData();
+                } else {
+                    console.warn("loadUnitsData() er ikke tilgjengelig enda.");
+                }
                 break;
             case 'map':
-                // Kall funksjonen i map.js for å laste kartet hvis modulen er klar
                 if (typeof loadMapDataFromStorage === 'function') {
                      await loadMapDataFromStorage();
                  } else {
@@ -116,10 +118,9 @@ async function loadDataForTab(tabId) {
                  }
                 break;
             case 'ops':
-                // await loadOpsViewData();
+                // if (typeof loadOpsViewData === 'function') await loadOpsViewData();
                  console.log("loadOpsViewData() ikke implementert enda.");
                 break;
-            // Ingen spesifikk data å laste for settings
         }
     } catch (error) {
         console.error(`Feil ved lasting av data for fane ${tabId}:`, error);
